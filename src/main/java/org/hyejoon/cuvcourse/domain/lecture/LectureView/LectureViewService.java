@@ -1,4 +1,4 @@
-package org.hyejoon.cuvcourse.domain.lecture.service;
+package org.hyejoon.cuvcourse.domain.lecture.LectureView;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
