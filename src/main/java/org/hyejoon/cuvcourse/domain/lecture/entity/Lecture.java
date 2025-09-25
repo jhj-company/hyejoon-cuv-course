@@ -33,7 +33,7 @@ public class Lecture extends BaseTimeEntity {
     private int capacity;
 
     @Column(nullable = false)
-    private int total = 0;
+    private int total;
 
     public Lecture (String lectureTitle, String professorName, int credits, int capacity) {
         this.lectureTitle = lectureTitle;
