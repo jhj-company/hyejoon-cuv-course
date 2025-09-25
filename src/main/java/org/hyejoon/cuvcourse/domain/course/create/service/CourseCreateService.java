@@ -37,7 +37,7 @@ public class CourseCreateService {
             throw new BusinessException(ALREADY_REGISTERED);
         }
 
-        long currentHeadcount = courseJpaRepository.countById_Lecture(lecture);
+        long currentHeadcount = courseJpaRepository.countByIdLecture(lecture);
 
         if (currentHeadcount >= lecture.getCapacity()) {
             throw new BusinessException(CourseExceptionEnum.CAPACITY_FULL);
