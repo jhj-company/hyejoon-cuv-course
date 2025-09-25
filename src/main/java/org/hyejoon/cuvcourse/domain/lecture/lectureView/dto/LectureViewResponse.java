@@ -1,4 +1,4 @@
-package org.hyejoon.cuvcourse.domain.lecture.dto;
+package org.hyejoon.cuvcourse.domain.lecture.lectureView.dto;
 
 public record LectureViewResponse (Long id, String lectureTitle, String professorName, int credits, int capacity, int total) {
 }
