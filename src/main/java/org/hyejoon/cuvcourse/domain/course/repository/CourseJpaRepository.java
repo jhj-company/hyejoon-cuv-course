@@ -24,4 +24,5 @@ public interface CourseJpaRepository extends JpaRepository<Course, CourseId> {
             + "FROM Lecture l LEFT JOIN Course c ON l.id = c.id.lecture.id "
             + "WHERE l.id = :lectureId " + "GROUP BY l.id, l.capacity")
     List<Object[]> findLectureCapacityAndCurrentCount(@Param("lectureId") Long lectureId);
+
 }
