@@ -23,12 +23,12 @@ public class GetCoursesService {
 
     @Transactional(readOnly = true)
     public GetCoursesResponse getCourses(Long studentId) {
+        Student student = studentJpaRepository.findById(studentId)
+            .orElseThrow(() -> new BusinessException(StudentExceptionEnum.STUDENT_NOT_FOUND));
+
         List<Course> courses = courseJpaRepository.findByStudentIdWithLecture(studentId);
 
         if (courses.isEmpty()) {
-            Student student = studentJpaRepository.findById(studentId)
-                .orElseThrow(() -> new BusinessException(
-                    StudentExceptionEnum.STUDENT_NOT_FOUND));
             return new GetCoursesResponse(List.of(), 0, student.getAvailableCredits());
         }
 
@@ -46,7 +46,6 @@ public class GetCoursesService {
             .mapToInt(CourseResponse::credits)
             .sum();
 
-        Student student = courses.get(0).getId().getStudent();
         int availableCredits = student.getAvailableCredits();
 
         return new GetCoursesResponse(courseResponses, enrolledCredits, availableCredits);
