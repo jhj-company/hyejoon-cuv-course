@@ -12,6 +12,10 @@ spring:
         highlight_sql: true
         ddl-auto: none
     open-in-view: false
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
   flyway:
     enabled: true # Flyway 활성화
     locations: classpath:db/migration # 마이그레이션 SQL 경로
