@@ -1,8 +1,8 @@
-package org.hyejoon.cuvcourse.domain.lecture.LectureView;
+package org.hyejoon.cuvcourse.domain.lecture.lectureView;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.hyejoon.cuvcourse.domain.lecture.dto.LectureViewResponse;
+import org.hyejoon.cuvcourse.domain.lecture.lectureView.dto.LectureViewResponse;
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
 import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.springframework.data.domain.Page;
