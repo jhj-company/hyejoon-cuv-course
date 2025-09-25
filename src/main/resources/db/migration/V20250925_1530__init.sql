@@ -3,15 +3,15 @@ CREATE TABLE students (
     name VARCHAR(255) NOT NULL COMMENT '학생 이름',
     email VARCHAR(255) NOT NULL COMMENT '로그인 이메일',
     password VARCHAR(255) NOT NULL COMMENT '로그인 패스워드',
-    availableCredits INT UNSIGNED NOT NULL COMMENT '신청 가능한 학점',
+    available_credits INT UNSIGNED NOT NULL COMMENT '신청 가능한 학점',
     created_at datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
     UNIQUE KEY uk_students_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='학생 테이블';
 
 CREATE TABLE lectures (
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    lectureTitle VARCHAR(255) NOT NULL COMMENT '강의명',
-    professorName VARCHAR(255) NOT NULL COMMENT '교수명',
+    lecture_title VARCHAR(255) NOT NULL COMMENT '강의명',
+    professor_name VARCHAR(255) NOT NULL COMMENT '교수명',
     credits INT UNSIGNED NOT NULL COMMENT '학점',
     capacity INT UNSIGNED NOT NULL COMMENT '정원',
     created_at datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)

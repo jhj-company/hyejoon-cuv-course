@@ -13,9 +13,9 @@ spring:
         ddl-auto: none
     open-in-view: false
   flyway:
-    enabled: true # Flyway ???
-    locations: classpath:db/migration # ?????? SQL ??
-    baseline-on-migrate: true # Flyway? ?? ??? ? ?? -> Baseline ??
+    enabled: true # Flyway 활성화
+    locations: classpath:db/migration # 마이그레이션 SQL 경로
+    baseline-on-migrate: true # Flyway를 처음 실행할 때 필요 -> Baseline 기록
     baseline-version: 20250925_1530
-    validate-on-migrate: true # SQL ??/?? ??
-    clean-disabled: true # ??? ??? ??
+    validate-on-migrate: true # SQL 변조/누락 방지
+    clean-disabled: true # 스키마 초기화 금지
