@@ -31,8 +31,8 @@ public class LectureViewControllerTest {
     @Test
     void 강의_목록_조회에_성공한다() throws Exception {
         // given
-        LectureViewResponse lecture1 = new LectureViewResponse(1L, "test 강의1", "test1", 3, 30, 1);
-        LectureViewResponse lecture2 = new LectureViewResponse(2L, "test 강의2", "test2", 2, 40, 3);
+        LectureViewResponse lecture1 = new LectureViewResponse(1L, "test 강의1", "test1", 3, 1, 30);
+        LectureViewResponse lecture2 = new LectureViewResponse(2L, "test 강의2", "test2", 2, 3, 40);
         Page<LectureViewResponse> pageResponse =
             new PageImpl<>(List.of(lecture1, lecture2));
 
