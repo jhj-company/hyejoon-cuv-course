@@ -1,0 +1,62 @@
+# ===============================
+# 🚀 Docker Compose 실행/관리 명령어
+# -------------------------------
+# 전체 서비스 실행 (백그라운드)
+#   docker compose up -d
+#
+# 전체 서비스 중지 + 네트워크 제거 (데이터 유지)
+#   docker compose down
+#
+# 전체 서비스 중지 + 볼륨/데이터까지 삭제 (주의!)
+#   docker compose down -v
+#
+# 특정 서비스만 재시작 (예: mysql)
+#   docker compose restart mysql
+#
+# 로그 확인 (예: app container name: hjcuv-redis)
+#   docker logs -f hjcuv-redis
+#
+# 도커 내부 bash 접속
+#   docker exec -it <container_name> bash
+#
+# Redis ping 확인
+#   docker exec -it hjcuv-redis redis-cli ping
+# ===============================
+
+version: "3.8"
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: hjcuv-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: hjcuv
+      MYSQL_USER: hjcuv
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql # MySQL 공식 기본 데이터 디렉토리
+
+  redis:
+    image: redis:7.4
+    container_name: hjcuv-redis
+    # === AOF 설정 (모든 기록[=동영상]) ===
+    # * `--appendonly yes`: AOF(Append Only File) 기능 활성화 / Redis가 처리한 모든 write 명령을 로그 파일에 기록, 서버 재시작 시 데이터 복구
+    # * `--appendfsync everysec`: AOF 파일에 얼마나 자주 fsync(디스크에 기록)할지 설정, everysec는 매초마다 동기화
+    #    * `always`: 매 명령마다 디스크 기록 (가장 안전하지만 성능 저하)
+    #    * `everysec`: 매초마다 디스크 기록 (균형 잡힌 옵션, 일반적으로 권장)
+    #    * `no`: OS가 알아서 디스크 기록 (최고 성능, 데이터 손실 위험)
+    # === RDB 설정 (스냅샷[=사진]) ===
+    # * --save 60 1: RDB 스냅샷 설정
+    #    * `save <seconds> <changes> 형식`: <seconds> 동안 <changes> 번 이상 데이터가 바뀌면 RDB 덤프(dump.rdb) 생성
+    #    * `60 1`: 60초 동안 1번 이상의 변경이 있으면 스냅샷 생성
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec", "--save", "60", "1"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data # Redis 공식 기본 데이터 디렉토리
+
+volumes:
+  mysql_data:
+  redis_data:

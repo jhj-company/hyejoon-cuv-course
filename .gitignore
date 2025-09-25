@@ -39,3 +39,7 @@ out/
 ### application ###
 application-*.properties
 application-*.yml
+
+### Environment ###
+.env*
+!.env.example
