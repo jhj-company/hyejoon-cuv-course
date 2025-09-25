@@ -6,6 +6,7 @@ import org.hyejoon.cuvcourse.global.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,9 +16,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Table(name = "lectures")
 public class Lecture extends BaseTimeEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -32,7 +35,7 @@ public class Lecture extends BaseTimeEntity {
     @Column(nullable = false)
     private int capacity;
 
-    public Lecture (String lectureTitle, String professorName, int credits, int capacity) {
+    public Lecture(String lectureTitle, String professorName, int credits, int capacity) {
         this.lectureTitle = lectureTitle;
         this.professorName = professorName;
         this.credits = credits;
