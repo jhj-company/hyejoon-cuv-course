@@ -1,5 +1,6 @@
 package org.hyejoon.cuvcourse.domain.course.cousecancel.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hyejoon.cuvcourse.domain.course.cousecancel.dto.CourseCancelRequest;
 import org.hyejoon.cuvcourse.domain.course.cousecancel.service.CourseCancelService;
@@ -18,7 +19,7 @@ public class CourseCancelController {
 
     @DeleteMapping("/api/courses")
     public GlobalResponse<?> deleteCourse(
-        @RequestBody CourseCancelRequest courseCancleRequest,
+        @Valid @RequestBody CourseCancelRequest courseCancleRequest,
         @RequestHeader(AuthConstant.X_STUDENT_ID) Long studentId
     ) {
         courseCancelService.courseCancel(courseCancleRequest.lectureId(), studentId);
