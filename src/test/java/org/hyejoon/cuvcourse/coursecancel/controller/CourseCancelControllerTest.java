@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hyejoon.cuvcourse.domain.course.cousecancel.controller.CourseCancelController;
-import org.hyejoon.cuvcourse.domain.course.cousecancel.dto.CourseCancleRequest;
+import org.hyejoon.cuvcourse.domain.course.cousecancel.dto.CourseCancelRequest;
 import org.hyejoon.cuvcourse.domain.course.cousecancel.exception.CourseCancelExceptionEnum;
 import org.hyejoon.cuvcourse.domain.course.cousecancel.service.CourseCancelService;
 import org.hyejoon.cuvcourse.global.auth.AuthConstant;
@@ -37,7 +37,7 @@ public class CourseCancelControllerTest {
         long lectureId = 1L;
         long studentId = 1L;
 
-        CourseCancleRequest request = new CourseCancleRequest(lectureId);
+        CourseCancelRequest request = new CourseCancelRequest(lectureId);
 
         doNothing().when(courseCancelService).courseCancel(request.lectureId(), studentId);
 
@@ -55,7 +55,7 @@ public class CourseCancelControllerTest {
         long lectureId = 9999L;
         long studentId = 1L;
 
-        CourseCancleRequest request = new CourseCancleRequest(lectureId);
+        CourseCancelRequest request = new CourseCancelRequest(lectureId);
 
         doThrow(new BusinessException(CourseCancelExceptionEnum.COURSE_NOT_FOUND))
             .when(courseCancelService).courseCancel(lectureId, studentId);
