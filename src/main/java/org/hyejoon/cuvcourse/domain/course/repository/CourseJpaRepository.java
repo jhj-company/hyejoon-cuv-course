@@ -18,7 +18,7 @@ public interface CourseJpaRepository extends JpaRepository<Course, CourseId> {
     Optional<Course> findByLectureAndStudent(@Param("lectureId") Long lectureId,
             @Param("studentId") Long studentId);
 
-    long countById_Lecture(Lecture lecture);
+    long countByIdLecture(Lecture lecture);
 
     @Query("SELECT l.capacity, COUNT(c.id.lecture.id) "
             + "FROM Lecture l LEFT JOIN Course c ON l.id = c.id.lecture.id "
