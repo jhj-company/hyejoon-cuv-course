@@ -29,11 +29,12 @@ public class LectureRepositoryCustomImpl implements LectureRepositoryCustom {
                 lecture.lectureTitle,
                 lecture.professorName,
                 lecture.credits,
-                course.id.student.countDistinct(),
+//                course.id.student.countDistinct(),
+                course.id.studentId.countDistinct(),
                 lecture.capacity
             ))
             .from(lecture)
-            .leftJoin(course).on(course.id.lecture.eq(lecture))
+            .leftJoin(course).on(course.id.lectureId.eq(lecture.id))
             .groupBy(lecture.id,
                 lecture.lectureTitle,
                 lecture.professorName,
