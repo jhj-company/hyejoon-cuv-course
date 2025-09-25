@@ -17,6 +17,7 @@ import org.hyejoon.cuvcourse.domain.student.entity.Student;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
+@Getter
 public class CourseId implements Serializable {
 
     @ManyToOne(optional = false)
@@ -26,4 +27,8 @@ public class CourseId implements Serializable {
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
     private Student student;
+
+    public static CourseId of(Lecture lecture, Student student) {
+        return new CourseId(lecture, student);
+    }
 }
