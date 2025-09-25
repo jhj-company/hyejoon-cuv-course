@@ -19,10 +19,10 @@ public class CourseCancelController {
 
     @DeleteMapping("/api/courses")
     public GlobalResponse<?> deleteCourse(
-        @Valid @RequestBody CourseCancelRequest courseCancleRequest,
+        @Valid @RequestBody CourseCancelRequest courseCancelRequest,
         @RequestHeader(AuthConstant.X_STUDENT_ID) Long studentId
     ) {
-        courseCancelService.courseCancel(courseCancleRequest.lectureId(), studentId);
+        courseCancelService.courseCancel(courseCancelRequest.lectureId(), studentId);
 
         return GlobalResponse.ok("수강 신청이 취소되었습니다.", null);
     }
