@@ -1,7 +1,9 @@
 package org.hyejoon.cuvcourse.domain.course.create.controller;
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.hyejoon.cuvcourse.domain.course.create.dto.CourseCreateRequest;
 import org.hyejoon.cuvcourse.domain.course.create.dto.CourseResponse;
 import org.hyejoon.cuvcourse.domain.course.create.service.CourseCreateService;
 import org.hyejoon.cuvcourse.global.dto.GlobalResponse;
@@ -18,10 +20,11 @@ public class CourseCreateController {
 
     @PostMapping("/api/courses")
     public GlobalResponse<CourseResponse> createCourse(
-        @RequestBody Long lectureId,
+        @Valid @RequestBody CourseCreateRequest request,
         @RequestHeader("X-Student-Id") Long studentId
     ) {
-        CourseResponse courseResponse = courseCreateService.createCourse(studentId, lectureId);
+        CourseResponse courseResponse = courseCreateService.createCourse(studentId,
+            request.lectureId());
         return GlobalResponse.ok("수강신청이 성공적으로 완료되었습니다.", courseResponse);
     }
 }
