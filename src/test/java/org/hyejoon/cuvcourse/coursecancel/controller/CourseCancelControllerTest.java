@@ -5,7 +5,9 @@ import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hyejoon.cuvcourse.domain.course.cousecancel.controller.CourseCancelController;
+import org.hyejoon.cuvcourse.domain.course.cousecancel.dto.CourseCancleRequest;
 import org.hyejoon.cuvcourse.domain.course.cousecancel.exception.CourseCancelExceptionEnum;
 import org.hyejoon.cuvcourse.domain.course.cousecancel.service.CourseCancelService;
 import org.hyejoon.cuvcourse.global.auth.AuthConstant;
@@ -13,6 +15,7 @@ import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -21,6 +24,9 @@ public class CourseCancelControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockitoBean
     private CourseCancelService courseCancelService;
@@ -31,11 +37,15 @@ public class CourseCancelControllerTest {
         long lectureId = 1L;
         long studentId = 1L;
 
-        doNothing().when(courseCancelService).courseCancel(lectureId, studentId);
+        CourseCancleRequest request = new CourseCancleRequest(lectureId);
+
+        doNothing().when(courseCancelService).courseCancel(request.lectureId(), studentId);
 
         // when & then
-        mockMvc.perform(delete("/api/courses/{lectureId}", lectureId)
-                .header(AuthConstant.X_STUDENT_ID, studentId))
+        mockMvc.perform(delete("/api/courses")
+                .header(AuthConstant.X_STUDENT_ID, studentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk());
     }
 
@@ -45,11 +55,15 @@ public class CourseCancelControllerTest {
         long lectureId = 9999L;
         long studentId = 1L;
 
+        CourseCancleRequest request = new CourseCancleRequest(lectureId);
+
         doThrow(new BusinessException(CourseCancelExceptionEnum.COURSE_NOT_FOUND))
             .when(courseCancelService).courseCancel(lectureId, studentId);
 
-        mockMvc.perform(delete("/api/courses/{lectureId}", lectureId)
-                .header(AuthConstant.X_STUDENT_ID, studentId))
+        mockMvc.perform(delete("/api/courses")
+                .header(AuthConstant.X_STUDENT_ID, studentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isBadRequest());
     }
 }
