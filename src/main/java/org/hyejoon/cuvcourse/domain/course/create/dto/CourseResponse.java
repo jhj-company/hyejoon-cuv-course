@@ -11,8 +11,8 @@ public record CourseResponse(
 
     public static CourseResponse from(Course course) {
         return new CourseResponse(
-            course.getId().getStudentId(),
-            course.getId().getLectureId(),
+            course.getId().getStudent().getId(),
+            course.getId().getLecture().getId(),
             course.getCreatedAt()
         );
     }
