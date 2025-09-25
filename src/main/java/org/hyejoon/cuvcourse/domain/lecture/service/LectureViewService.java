@@ -19,7 +19,7 @@ public class LectureViewService {
     @Transactional(readOnly = true)
     public Page<LectureViewResponse> findAll(Pageable pageable) {
 
-        Page<Lecture> lectures = lectureJpaRepository.findAllLecture(pageable);
+        Page<Lecture> lectures = lectureJpaRepository.findAll(pageable);
 
         return lectures.map(lecture -> new LectureViewResponse(
             lecture.getId(),
