@@ -1,7 +1,5 @@
 package org.hyejoon.cuvcourse.domain.course.create.service;
 
-import static org.hyejoon.cuvcourse.domain.course.exception.CourseExceptionEnum.ALREADY_REGISTERED;
-import static org.hyejoon.cuvcourse.domain.course.exception.CourseExceptionEnum.CAPACITY_FULL;
 import static org.hyejoon.cuvcourse.domain.course.exception.CourseExceptionEnum.LECTURE_NOT_FOUND;
 
 import java.util.List;
@@ -9,7 +7,12 @@ import lombok.RequiredArgsConstructor;
 import org.hyejoon.cuvcourse.domain.course.create.dto.CourseResponse;
 import org.hyejoon.cuvcourse.domain.course.entity.Course;
 import org.hyejoon.cuvcourse.domain.course.entity.CourseId;
+import org.hyejoon.cuvcourse.domain.course.exception.CourseExceptionEnum;
 import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
+import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
+import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
+import org.hyejoon.cuvcourse.domain.student.entity.Student;
+import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,15 +22,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class CourseCreateService {
 
     private final CourseJpaRepository courseJpaRepository;
+    private final LectureJpaRepository lectureJpaRepository;
+    private final StudentJpaRepository studentJpaRepository;
 
     @Transactional
     public CourseResponse createCourse(Long studentId, Long lectureId) {
+        Student student = studentJpaRepository.findById(studentId)
+            .orElseThrow(() -> new BusinessException(CourseExceptionEnum.STUDENT_NOT_FOUND));
+        Lecture lecture = lectureJpaRepository.findById(lectureId)
+            .orElseThrow(() -> new BusinessException(CourseExceptionEnum.LECTURE_NOT_FOUND));
 
-        CourseId courseId = CourseId.of(lectureId, studentId);
+        CourseId courseId = CourseId.of(lecture, student);
 
         // 2. 수강 신청 중복 확인
         if (courseJpaRepository.existsById(courseId)) {
-            throw new BusinessException(ALREADY_REGISTERED);
+            throw new BusinessException(CourseExceptionEnum.ALREADY_REGISTERED);
         }
 
         // 3. 정원 및 현재 인원 조회 및 검증
@@ -37,18 +46,9 @@ public class CourseCreateService {
             throw new BusinessException(LECTURE_NOT_FOUND);
         }
 
-        Object[] result = results.get(0);
-        int capacity = (Integer) result[0];
-        long currentHeadcount = (Long) result[1];
-
-        if (currentHeadcount >= capacity) {
-            throw new BusinessException(CAPACITY_FULL);
-        }
-
         Course course = Course.from(courseId);
+        courseJpaRepository.save(course);
 
-        Course savedCourse = courseJpaRepository.save(course);
-
-        return CourseResponse.from(savedCourse);
+        return CourseResponse.from(course);
     }
 }
