@@ -1,8 +1,7 @@
 package org.hyejoon.cuvcourse.domain.course.create.service;
 
-import static org.hyejoon.cuvcourse.domain.course.exception.CourseExceptionEnum.LECTURE_NOT_FOUND;
+import static org.hyejoon.cuvcourse.domain.course.exception.CourseExceptionEnum.ALREADY_REGISTERED;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.hyejoon.cuvcourse.domain.course.create.dto.CourseResponse;
 import org.hyejoon.cuvcourse.domain.course.entity.Course;
@@ -34,16 +33,14 @@ public class CourseCreateService {
 
         CourseId courseId = CourseId.of(lecture, student);
 
-        // 2. 수강 신청 중복 확인
         if (courseJpaRepository.existsById(courseId)) {
-            throw new BusinessException(CourseExceptionEnum.ALREADY_REGISTERED);
+            throw new BusinessException(ALREADY_REGISTERED);
         }
 
-        // 3. 정원 및 현재 인원 조회 및 검증
-        List<Object[]> results = courseJpaRepository.findLectureCapacityAndCurrentCount(lectureId);
+        long currentHeadcount = courseJpaRepository.countById_Lecture(lecture);
 
-        if (results.isEmpty()) {
-            throw new BusinessException(LECTURE_NOT_FOUND);
+        if (currentHeadcount >= lecture.getCapacity()) {
+            throw new BusinessException(CourseExceptionEnum.CAPACITY_FULL);
         }
 
         Course course = Course.from(courseId);

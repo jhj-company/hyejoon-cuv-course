@@ -9,16 +9,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
+import org.hyejoon.cuvcourse.domain.course.create.dto.CourseCreateRequest;
 import org.hyejoon.cuvcourse.domain.course.create.dto.CourseResponse;
 import org.hyejoon.cuvcourse.domain.course.create.service.CourseCreateService;
+import org.hyejoon.cuvcourse.domain.course.exception.CourseExceptionEnum;
+import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(CourseCreateController.class)
@@ -28,7 +29,7 @@ class CourseCreateControllerTest {
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
-    @Autowired
+    @MockitoBean
     private CourseCreateService courseCreateService;
 
     @Test
@@ -42,11 +43,15 @@ class CourseCreateControllerTest {
         given(courseCreateService.createCourse(studentId, lectureId))
             .willReturn(response);
 
+        String requestBody = objectMapper.writeValueAsString(
+            new CourseCreateRequest(lectureId)
+        );
+
         //when & then
         mockMvc.perform(post("/api/courses")
                 .header("X-Student-Id", studentId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(lectureId)))
+                .content(requestBody))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.message").value("수강신청이 성공적으로 완료되었습니다."))
             .andExpect(jsonPath("$.data.studentId").value(studentId))
@@ -59,24 +64,22 @@ class CourseCreateControllerTest {
         long studentId = 1L;
         long lectureId = 101L;
 
-        doThrow(new IllegalStateException("이미 수강신청한 강의입니다."))
+        String requestBody = objectMapper.writeValueAsString(
+            new CourseCreateRequest(lectureId)
+        );
+
+        doThrow(new BusinessException(CourseExceptionEnum.ALREADY_REGISTERED))
             .when(courseCreateService)
             .createCourse(anyLong(), anyLong());
 
         mockMvc.perform(post("/api/courses")
                 .header("X-Student-Id", studentId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(lectureId)))
+                .content(requestBody))
+            // 💡 BusinessException이 409 Conflict로 처리된다고 가정하고 검증
             .andExpect(status().isConflict())
-            .andExpect(jsonPath("$.message").value("이미 수강신청한 강의입니다."));
-    }
-
-    @TestConfiguration
-    static class TestConfig {
-
-        @Bean
-        public CourseCreateService courseCreateService() {
-            return Mockito.mock(CourseCreateService.class);
-        }
+            // 💡 응답 메시지도 BusinessException에서 가져온 메시지와 일치하도록 검증
+            .andExpect(
+                jsonPath("$.message").value(CourseExceptionEnum.ALREADY_REGISTERED.getMessage()));
     }
 }
