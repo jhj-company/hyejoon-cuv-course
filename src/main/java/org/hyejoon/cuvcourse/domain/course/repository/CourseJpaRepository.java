@@ -4,8 +4,14 @@ import java.util.Optional;
 import org.hyejoon.cuvcourse.domain.course.entity.Course;
 import org.hyejoon.cuvcourse.domain.course.entity.CourseId;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface CourseJpaRepository extends JpaRepository<Course, CourseId> {
 
-    Optional<Course> findByLectureAndStudent(Long lectureId, Long studentId);
+    @Query("SELECT c FROM Course c WHERE c.id.lecture.id = :lectureId AND c.id.student.id = :studentId")
+    Optional<Course> findByLectureAndStudent(
+        @Param("lectureId") Long lectureId,
+        @Param("studentId") Long studentId
+    );
 }
