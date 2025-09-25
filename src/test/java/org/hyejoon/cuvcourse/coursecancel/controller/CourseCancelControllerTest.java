@@ -64,6 +64,6 @@ public class CourseCancelControllerTest {
                 .header(AuthConstant.X_STUDENT_ID, studentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isNotFound());
     }
 }
