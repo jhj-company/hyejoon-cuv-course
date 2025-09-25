@@ -9,11 +9,10 @@ public record CourseResponse(
     LocalDateTime createdAt
 ) {
 
-    // Course 엔티티를 CourseResponse DTO로 변환해주는 정적 메소드
     public static CourseResponse from(Course course) {
         return new CourseResponse(
-            course.getId().getStudent().getId(),
-            course.getId().getLecture().getId(),
+            course.getId().getStudentId(),
+            course.getId().getLectureId(),
             course.getCreatedAt()
         );
     }

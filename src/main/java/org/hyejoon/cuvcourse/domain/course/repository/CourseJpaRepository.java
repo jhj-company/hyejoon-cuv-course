@@ -2,6 +2,7 @@ package org.hyejoon.cuvcourse.domain.course.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.List;
 import org.hyejoon.cuvcourse.domain.course.entity.Course;
 import org.hyejoon.cuvcourse.domain.course.entity.CourseId;
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
@@ -20,4 +21,10 @@ public interface CourseJpaRepository extends JpaRepository<Course, CourseId> {
         @Param("studentId") Long studentId
     );
     long countByIdLecture(Lecture lecture);
+    @Query("SELECT l.capacity, COUNT(c.id.lecture.id) " +
+        "FROM Lecture l LEFT JOIN Course c ON l.id = c.id.lecture.id " +
+        "WHERE l.id = :lectureId " +
+        "GROUP BY l.id, l.capacity")
+    List<Object[]> findLectureCapacityAndCurrentCount(@Param("lectureId") Long lectureId);
+
 }
