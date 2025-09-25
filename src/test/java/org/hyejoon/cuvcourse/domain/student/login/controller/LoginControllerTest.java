@@ -19,7 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@WebMvcTest
+@WebMvcTest(LoginController.class)
 public class LoginControllerTest {
     @Autowired
     private MockMvc mockMvc;
