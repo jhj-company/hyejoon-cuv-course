@@ -3,6 +3,7 @@ package org.hyejoon.cuvcourse.global.exception;
 import jakarta.validation.ConstraintViolationException;
 import java.util.stream.Collectors;
 import org.hyejoon.cuvcourse.global.dto.GlobalResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
@@ -48,6 +49,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<GlobalResponse<Void>> handleException(Exception ex) {
         GlobalResponse<Void> response = GlobalResponse.badRequest("Internal server error", null);
+        return ResponseEntity.status(response.status()).body(response);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<GlobalResponse<Void>> handleIllegalStateException(
+        IllegalStateException ex) {
+        GlobalResponse<Void> response = new GlobalResponse<>(HttpStatus.CONFLICT, ex.getMessage(),
+            null);
         return ResponseEntity.status(response.status()).body(response);
     }
 }
