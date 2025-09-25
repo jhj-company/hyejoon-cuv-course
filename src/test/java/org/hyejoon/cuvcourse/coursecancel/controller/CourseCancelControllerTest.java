@@ -1,13 +1,13 @@
-package org.hyejoon.cuvcourse.coursecancle.controller;
+package org.hyejoon.cuvcourse.coursecancel.controller;
 
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.hyejoon.cuvcourse.domain.course.cousecancle.controller.CourseCancleController;
-import org.hyejoon.cuvcourse.domain.course.cousecancle.exception.CourseCancleExceptionEnum;
-import org.hyejoon.cuvcourse.domain.course.cousecancle.service.CourseCancleService;
+import org.hyejoon.cuvcourse.domain.course.cousecancel.controller.CourseCancelController;
+import org.hyejoon.cuvcourse.domain.course.cousecancel.exception.CourseCancelExceptionEnum;
+import org.hyejoon.cuvcourse.domain.course.cousecancel.service.CourseCancelService;
 import org.hyejoon.cuvcourse.global.auth.AuthConstant;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.junit.jupiter.api.Test;
@@ -16,14 +16,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(CourseCancleController.class)
-public class CourseCancleControllerTest {
+@WebMvcTest(CourseCancelController.class)
+public class CourseCancelControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
-    private CourseCancleService courseCancleService;
+    private CourseCancelService courseCancelService;
 
     @Test
     void 수강취소_성공() throws Exception {
@@ -31,7 +31,7 @@ public class CourseCancleControllerTest {
         long lectureId = 1L;
         long studentId = 1L;
 
-        doNothing().when(courseCancleService).courseCancle(lectureId, studentId);
+        doNothing().when(courseCancelService).courseCancel(lectureId, studentId);
 
         // when & then
         mockMvc.perform(delete("/api/courses/{lectureId}", lectureId)
@@ -45,8 +45,8 @@ public class CourseCancleControllerTest {
         long lectureId = 9999L;
         long studentId = 1L;
 
-        doThrow(new BusinessException(CourseCancleExceptionEnum.COURSE_NOT_FOUND))
-            .when(courseCancleService).courseCancle(lectureId, studentId);
+        doThrow(new BusinessException(CourseCancelExceptionEnum.COURSE_NOT_FOUND))
+            .when(courseCancelService).courseCancel(lectureId, studentId);
 
         mockMvc.perform(delete("/api/courses/{lectureId}", lectureId)
                 .header(AuthConstant.X_STUDENT_ID, studentId))
