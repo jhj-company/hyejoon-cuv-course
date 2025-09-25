@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.hyejoon.cuvcourse.domain.course.create.dto.CourseResponse;
 import org.hyejoon.cuvcourse.domain.course.entity.Course;
 import org.hyejoon.cuvcourse.domain.course.entity.CourseId;
+import org.hyejoon.cuvcourse.domain.course.exception.CourseExceptionEnum;
 import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
 import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
+import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,20 +25,24 @@ public class CourseCreateService {
     @Transactional
     public CourseResponse createCourse(Long studentId, Long lectureId) {
         Student student = studentJpaRepository.findById(studentId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 학생을 찾을 수 없습니다." + studentId));
+            .orElseThrow(() -> new BusinessException(CourseExceptionEnum.STUDENT_NOT_FOUND));
         Lecture lecture = lectureJpaRepository.findById(lectureId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 강의를 찾을 수 없습니다." + lectureId));
+            .orElseThrow(() -> new BusinessException(CourseExceptionEnum.LECTURE_NOT_FOUND));
 
         CourseId courseId = CourseId.of(lecture, student);
-
         if (courseJpaRepository.existsById(courseId)) {
-            throw new IllegalStateException("이미 수강신청한 강의 입니다.");
+            throw new BusinessException(CourseExceptionEnum.ALREADY_REGISTERED);
         }
-        lecture.addStudent();
+
+        long currentTotal = courseJpaRepository.countByIdLecture(lecture);
+
+        if (currentTotal >= lecture.getCapacity()) {
+            throw new BusinessException(CourseExceptionEnum.CAPACITY_FULL);
+        }
 
         Course course = Course.from(courseId);
         courseJpaRepository.save(course);
-        return CourseResponse.from(course);
 
+        return CourseResponse.from(course);
     }
 }

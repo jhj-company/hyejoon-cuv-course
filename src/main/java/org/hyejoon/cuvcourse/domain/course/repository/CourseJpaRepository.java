@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.hyejoon.cuvcourse.domain.course.entity.Course;
 import org.hyejoon.cuvcourse.domain.course.entity.CourseId;
+import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,4 +19,5 @@ public interface CourseJpaRepository extends JpaRepository<Course, CourseId> {
         @Param("lectureId") Long lectureId,
         @Param("studentId") Long studentId
     );
+    long countByIdLecture(Lecture lecture);
 }
