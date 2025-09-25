@@ -6,10 +6,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-
 import java.util.List;
-import org.hyejoon.cuvcourse.domain.lecture.lectureView.LectureViewController;
-import org.hyejoon.cuvcourse.domain.lecture.lectureView.LectureViewService;
+import org.hyejoon.cuvcourse.domain.lecture.lectureView.controller.LectureViewController;
+import org.hyejoon.cuvcourse.domain.lecture.lectureView.service.LectureViewService;
 import org.hyejoon.cuvcourse.domain.lecture.lectureView.dto.LectureViewResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
