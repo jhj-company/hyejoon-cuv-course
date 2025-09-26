@@ -1,4 +1,4 @@
-package org.hyejoon.cuvcourse.domain.course.courseregist.service;
+package org.hyejoon.cuvcourse.domain.course.courseregist.service.lock;
 
 import org.hyejoon.cuvcourse.global.redis.SpinLockService;
 import org.springframework.stereotype.Component;

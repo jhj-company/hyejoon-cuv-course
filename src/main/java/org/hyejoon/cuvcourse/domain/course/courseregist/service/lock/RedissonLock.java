@@ -1,4 +1,4 @@
-package org.hyejoon.cuvcourse.domain.course.courseregist.service;
+package org.hyejoon.cuvcourse.domain.course.courseregist.service.lock;
 
 import java.util.concurrent.TimeUnit;
 
