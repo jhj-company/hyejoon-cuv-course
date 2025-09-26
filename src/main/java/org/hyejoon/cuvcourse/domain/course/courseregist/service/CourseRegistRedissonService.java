@@ -1,6 +1,6 @@
 package org.hyejoon.cuvcourse.domain.course.courseregist.service;
 
-import lombok.RequiredArgsConstructor;
+import java.util.concurrent.TimeUnit;
 
 import org.hyejoon.cuvcourse.domain.course.courseregist.dto.CourseResponse;
 import org.hyejoon.cuvcourse.domain.course.courseregist.exception.CourseRegistExceptionEnum;
@@ -12,23 +12,27 @@ import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
-import org.hyejoon.cuvcourse.global.redis.SpinLockService;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
+
+@Primary
 @Service
 @RequiredArgsConstructor
-public class CourseRegistSpinLockService implements CourseRegistUseCase {
+public class CourseRegistRedissonService implements CourseRegistUseCase {
 
-    private static final int LOCK_ACQUIRE_RETRY_DELAY_MS = 1000;
-    private static final int LOCK_ACQUIRE_MAX_RETRY = 3;
-    private static final long LOCK_TIMEOUT_SECONDS = 10L;
+    private static final int LOCK_LEASE_SECONDS = 3;
+    private static final int LOCK_MAX_WAIT_SECONDS = 3;
     private static final String COURSE_REGIST_LOCK_KEY = "course-service:regist-lock:";
 
     private final CourseJpaRepository courseJpaRepository;
     private final LectureJpaRepository lectureJpaRepository;
     private final StudentJpaRepository studentJpaRepository;
-    private final SpinLockService spinLockService;
     private final CourseCreationService courseCreationService;
+    private final RedissonClient redissonClient;
 
     @Override
     public CourseResponse registerCourse(long studentId, long lectureId) {
@@ -41,17 +45,20 @@ public class CourseRegistSpinLockService implements CourseRegistUseCase {
 
         checkDuplicateRegistration(courseId);
 
-        String lockKey = COURSE_REGIST_LOCK_KEY + lectureId;
-        Boolean lockAcquired = acquireLockWithRetry(lockKey);
+        RLock lock = redissonClient.getLock(COURSE_REGIST_LOCK_KEY + lectureId);
 
         try {
-            Course savedCourse = courseCreationService.createCourseIfAvailable(lecture, courseId);
-            return CourseResponse.from(savedCourse);
+            if (acquireLock(lock)) {
+                Course course = courseCreationService.createCourseIfAvailable(lecture, courseId);
+                return CourseResponse.from(course);
+            }
         } finally {
-            if (lockAcquired != null && lockAcquired) {
-                spinLockService.releaseLock(lockKey);
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
             }
         }
+
+        throw new BusinessException(CourseRegistExceptionEnum.LOCK_ACQUIRE_FAILED);
     }
 
     private void checkDuplicateRegistration(CourseId courseId) {
@@ -61,19 +68,12 @@ public class CourseRegistSpinLockService implements CourseRegistUseCase {
         }
     }
 
-    private Boolean acquireLockWithRetry(String lockKey) {
+    private boolean acquireLock(RLock lock) {
         try {
-            for (int i = 0; i < LOCK_ACQUIRE_MAX_RETRY; i++) {
-                Boolean lockAcquired = spinLockService.acquireLock(lockKey, LOCK_TIMEOUT_SECONDS);
-                if (lockAcquired != null && lockAcquired) {
-                    return lockAcquired;
-                }
-                Thread.sleep(LOCK_ACQUIRE_RETRY_DELAY_MS);
-            }
+            return lock.tryLock(LOCK_MAX_WAIT_SECONDS, LOCK_LEASE_SECONDS, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new BusinessException(CourseRegistExceptionEnum.LOCK_ACQUIRE_FAILED);
         }
-        throw new BusinessException(CourseRegistExceptionEnum.LOCK_ACQUIRE_FAILED);
     }
 }

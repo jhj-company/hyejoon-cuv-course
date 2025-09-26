@@ -28,7 +28,8 @@ public class CourseRegistTest {
     // courseRegistService - 무조건 실패
     // courseRegistSpinLockService - 성공
     // courseRegistPubSubLockService - 성공
-    @Qualifier("courseRegistPubSubLockService")
+    // courseRegistRedissonService - 성공
+    @Qualifier("courseRegistRedissonService")
     private CourseRegistUseCase courseCreateService;
 
     @Autowired
