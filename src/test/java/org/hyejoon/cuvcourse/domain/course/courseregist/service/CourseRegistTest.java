@@ -38,12 +38,11 @@ public class CourseRegistTest {
     @Autowired
     private LectureJpaRepository lectureJpaRepository;
 
-    private Student createStudent(Long id, String name, String email, String password,
+    private Student createStudent(String name, String email, String password,
         int credits) throws Exception {
         Constructor<Student> constructor = Student.class.getDeclaredConstructor();
         constructor.setAccessible(true);
         Student student = constructor.newInstance();
-        ReflectionTestUtils.setField(student, "id", id);
         ReflectionTestUtils.setField(student, "name", name);
         ReflectionTestUtils.setField(student, "email", email);
         ReflectionTestUtils.setField(student, "password", password);
@@ -54,7 +53,7 @@ public class CourseRegistTest {
     @Test
     void 수강신청_동시에_신청해도_정원과_신청수가_일치해야한다() throws Exception {
         final int CAPACITY = 20;
-        final int TOTAL_STUDENT = 50;
+        final int TOTAL_STUDENT = 60;
 
         // Given: 강의 (정원 20)
         Lecture lecture = new Lecture("강의", "교수님", 3, CAPACITY);
@@ -63,7 +62,7 @@ public class CourseRegistTest {
         // Given: 학생들 (50명)
         List<Student> students = new ArrayList<>();
         for (int i = 1; i <= TOTAL_STUDENT; i++) {
-            Student student = createStudent((long) i, "Student" + i, "student" + i + "@test.com",
+            Student student = createStudent("Student" + i, "student" + i + "@test.com",
                 "password", 10);
             students.add(studentJpaRepository.save(student));
         }
