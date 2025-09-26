@@ -39,6 +39,7 @@ out/
 ### application ###
 application-*.properties
 application-*.yml
+/src/test/resources
 
 ### Environment ###
 .env*
