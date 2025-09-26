@@ -2,6 +2,7 @@ package org.hyejoon.cuvcourse.domain.course.courseregist.service;
 
 import org.hyejoon.cuvcourse.domain.course.courseregist.dto.CourseResponse;
 import org.hyejoon.cuvcourse.domain.course.courseregist.exception.CourseRegistExceptionEnum;
+import org.hyejoon.cuvcourse.domain.course.courseregist.service.lock.DistributedLock;
 import org.hyejoon.cuvcourse.domain.course.entity.Course;
 import org.hyejoon.cuvcourse.domain.course.entity.CourseId;
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;

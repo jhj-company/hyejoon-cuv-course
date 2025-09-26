@@ -1,6 +1,7 @@
 package org.hyejoon.cuvcourse.domain.course.courseregist.service;
 
 import org.hyejoon.cuvcourse.domain.course.courseregist.dto.CourseResponse;
+import org.hyejoon.cuvcourse.domain.course.courseregist.service.lock.DistributedLock;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
