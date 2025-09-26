@@ -13,6 +13,7 @@ import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
+import org.hyejoon.cuvcourse.global.lock.LettuceDistributedLockManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,31 +24,42 @@ public class CourseCreateService {
     private final CourseJpaRepository courseJpaRepository;
     private final LectureJpaRepository lectureJpaRepository;
     private final StudentJpaRepository studentJpaRepository;
+    private final LettuceDistributedLockManager distributedLockManager;
 
     @Transactional
     public CourseResponse createCourse(Long studentId, Long lectureId) {
-        Student student = studentJpaRepository.findById(studentId)
-            .orElseThrow(() -> new BusinessException(CourseExceptionEnum.STUDENT_NOT_FOUND));
-        Lecture lecture = lectureJpaRepository.findById(lectureId)
-            .orElseThrow(() -> new BusinessException(CourseExceptionEnum.LECTURE_NOT_FOUND));
+        final String lockKey = "lecture:" + lectureId;
 
-        CourseId courseId = CourseId.of(lecture, student);
+        return distributedLockManager.executeWithLockOrThrow(
+            lockKey, 3000, 50,
+            () -> {
+                Student student = studentJpaRepository.findById(studentId)
+                    .orElseThrow(
+                        () -> new BusinessException(CourseExceptionEnum.STUDENT_NOT_FOUND));
+                Lecture lecture = lectureJpaRepository.findById(lectureId)
+                    .orElseThrow(
+                        () -> new BusinessException(CourseExceptionEnum.LECTURE_NOT_FOUND));
 
-        // 중복 신청 금지
-        if (courseJpaRepository.existsById(courseId)) {
-            throw new BusinessException(ALREADY_REGISTERED);
-        }
+                CourseId courseId = CourseId.of(lecture, student);
 
-        long currentHeadcount = courseJpaRepository.countByIdLecture(lecture);
+                // 중복 신청 금지
+                if (courseJpaRepository.existsById(courseId)) {
+                    throw new BusinessException(ALREADY_REGISTERED);
+                }
 
-        // 정원 초과 금지
-        if (currentHeadcount >= lecture.getCapacity()) {
-            throw new BusinessException(CourseExceptionEnum.CAPACITY_FULL);
-        }
+                long currentHeadcount = courseJpaRepository.countByIdLecture(lecture);
 
-        Course course = Course.from(courseId);
-        courseJpaRepository.save(course);
+                // 정원 초과 금지
+                if (currentHeadcount >= lecture.getCapacity()) {
+                    throw new BusinessException(CourseExceptionEnum.CAPACITY_FULL);
+                }
 
-        return CourseResponse.from(course);
+                Course course = Course.from(courseId);
+                courseJpaRepository.save(course);
+
+                return CourseResponse.from(course);
+            },
+            CourseExceptionEnum.LOCK_ACQUISITION_FAILED
+        );
     }
 }
