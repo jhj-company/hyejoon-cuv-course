@@ -1,11 +1,12 @@
-package org.hyejoon.cuvcourse.domain.course.create.controller;
+package org.hyejoon.cuvcourse.domain.course.courseregist.controller;
 
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.hyejoon.cuvcourse.domain.course.create.dto.CourseCreateRequest;
-import org.hyejoon.cuvcourse.domain.course.create.dto.CourseResponse;
-import org.hyejoon.cuvcourse.domain.course.create.service.CourseRegistService;
+
+import org.hyejoon.cuvcourse.domain.course.courseregist.dto.CourseRegistRequest;
+import org.hyejoon.cuvcourse.domain.course.courseregist.dto.CourseResponse;
+import org.hyejoon.cuvcourse.domain.course.courseregist.service.CourseRegistUseCase;
 import org.hyejoon.cuvcourse.global.auth.AuthConstant;
 import org.hyejoon.cuvcourse.global.dto.GlobalResponse;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,16 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class CourseCreateController {
+public class CourseRegistController {
 
-    private final CourseRegistService courseCreateService;
+    private final CourseRegistUseCase courseRegistUseCase;
 
     @PostMapping("/api/courses")
-    public GlobalResponse<CourseResponse> createCourse(
-        @Valid @RequestBody CourseCreateRequest request,
+    public GlobalResponse<CourseResponse> registCourse(
+        @Valid @RequestBody CourseRegistRequest request,
         @RequestHeader(AuthConstant.X_STUDENT_ID) Long studentId
     ) {
-        CourseResponse courseResponse = courseCreateService.registerCourse(studentId,
+        CourseResponse courseResponse = courseRegistUseCase.registerCourse(studentId,
             request.lectureId());
         return GlobalResponse.ok("수강신청이 성공적으로 완료되었습니다.", courseResponse);
     }

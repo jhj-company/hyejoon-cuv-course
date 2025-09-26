@@ -1,4 +1,4 @@
-package org.hyejoon.cuvcourse.domain.course.create.controller;
+package org.hyejoon.cuvcourse.domain.course.courseregist.controller;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -9,10 +9,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
-import org.hyejoon.cuvcourse.domain.course.create.dto.CourseCreateRequest;
-import org.hyejoon.cuvcourse.domain.course.create.dto.CourseResponse;
-import org.hyejoon.cuvcourse.domain.course.create.exception.CourseCreateExceptionEnum;
-import org.hyejoon.cuvcourse.domain.course.create.service.CourseRegistService;
+
+import org.hyejoon.cuvcourse.domain.course.courseregist.dto.CourseRegistRequest;
+import org.hyejoon.cuvcourse.domain.course.courseregist.dto.CourseResponse;
+import org.hyejoon.cuvcourse.domain.course.courseregist.exception.CourseRegistExceptionEnum;
+import org.hyejoon.cuvcourse.domain.course.courseregist.service.CourseRegistService;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,15 +23,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(CourseCreateController.class)
-class CourseCreateControllerTest {
+@WebMvcTest(CourseRegistController.class)
+class CourseRegistControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
     @MockitoBean
-    private CourseRegistService courseCreateService;
+    private CourseRegistService courseRegistService;
 
     @Test
     @DisplayName("성공 : 학생이 정상적으로 강의를 수강신청한다")
@@ -40,11 +41,11 @@ class CourseCreateControllerTest {
         long lectureId = 10L;
         CourseResponse response = new CourseResponse(studentId, lectureId, LocalDateTime.now());
 
-        given(courseCreateService.registerCourse(studentId, lectureId))
+        given(courseRegistService.registerCourse(studentId, lectureId))
             .willReturn(response);
 
         String requestBody = objectMapper.writeValueAsString(
-            new CourseCreateRequest(lectureId)
+            new CourseRegistRequest(lectureId)
         );
 
         //when & then
@@ -65,11 +66,11 @@ class CourseCreateControllerTest {
         long lectureId = 101L;
 
         String requestBody = objectMapper.writeValueAsString(
-            new CourseCreateRequest(lectureId)
+            new CourseRegistRequest(lectureId)
         );
 
-        doThrow(new BusinessException(CourseCreateExceptionEnum.ALREADY_REGISTERED))
-            .when(courseCreateService)
+        doThrow(new BusinessException(CourseRegistExceptionEnum.ALREADY_REGISTERED))
+            .when(courseRegistService)
             .registerCourse(anyLong(), anyLong());
 
         mockMvc.perform(post("/api/courses")
@@ -80,7 +81,7 @@ class CourseCreateControllerTest {
             .andExpect(status().isConflict())
             // 💡 응답 메시지도 BusinessException에서 가져온 메시지와 일치하도록 검증
             .andExpect(
-                jsonPath("$.message").value(CourseCreateExceptionEnum.ALREADY_REGISTERED
+                jsonPath("$.message").value(CourseRegistExceptionEnum.ALREADY_REGISTERED
                     .getMessage()));
     }
 }

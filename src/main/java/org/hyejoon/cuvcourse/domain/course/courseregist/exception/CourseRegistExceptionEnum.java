@@ -1,4 +1,4 @@
-package org.hyejoon.cuvcourse.domain.course.create.exception;
+package org.hyejoon.cuvcourse.domain.course.courseregist.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum CourseCreateExceptionEnum implements BusinessExceptionEnum {
+public enum CourseRegistExceptionEnum implements BusinessExceptionEnum {
 
     STUDENT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 학생을 찾을 수 없습니다."), LECTURE_NOT_FOUND(
         HttpStatus.NOT_FOUND, "해당 강의를 찾을 수 없습니다."), CAPACITY_FULL(HttpStatus.CONFLICT,
