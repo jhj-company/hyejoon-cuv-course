@@ -27,18 +27,20 @@ public class CourseCreateService {
     @Transactional
     public CourseResponse createCourse(Long studentId, Long lectureId) {
         Student student = studentJpaRepository.findById(studentId)
-            .orElseThrow(() -> new BusinessException(CourseExceptionEnum.STUDENT_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(CourseExceptionEnum.STUDENT_NOT_FOUND));
         Lecture lecture = lectureJpaRepository.findById(lectureId)
-            .orElseThrow(() -> new BusinessException(CourseExceptionEnum.LECTURE_NOT_FOUND));
+                .orElseThrow(() -> new BusinessException(CourseExceptionEnum.LECTURE_NOT_FOUND));
 
         CourseId courseId = CourseId.of(lecture, student);
 
+        // 중복 신청 금지
         if (courseJpaRepository.existsById(courseId)) {
             throw new BusinessException(ALREADY_REGISTERED);
         }
 
         long currentHeadcount = courseJpaRepository.countByIdLecture(lecture);
 
+        // 정원 초과 금지
         if (currentHeadcount >= lecture.getCapacity()) {
             throw new BusinessException(CourseExceptionEnum.CAPACITY_FULL);
         }
