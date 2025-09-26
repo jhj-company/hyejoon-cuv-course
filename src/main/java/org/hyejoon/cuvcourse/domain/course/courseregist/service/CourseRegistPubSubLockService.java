@@ -13,13 +13,11 @@ import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
-import org.springframework.context.annotation.Primary;
 import org.springframework.integration.redis.util.RedisLockRegistry;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
-@Primary
 @Service
 @RequiredArgsConstructor
 public class CourseRegistPubSubLockService implements CourseRegistUseCase {
@@ -68,6 +66,7 @@ public class CourseRegistPubSubLockService implements CourseRegistUseCase {
         try {
             return lock.tryLock(LOCK_MAX_WAIT_SECONDS, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new BusinessException(CourseRegistExceptionEnum.LOCK_ACQUIRE_FAILED);
         }
     }
