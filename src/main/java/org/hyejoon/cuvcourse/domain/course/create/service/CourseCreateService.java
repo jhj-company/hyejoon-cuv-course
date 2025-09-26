@@ -10,6 +10,7 @@ import org.hyejoon.cuvcourse.domain.course.exception.CourseExceptionEnum;
 import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
 import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
+import org.hyejoon.cuvcourse.domain.lock.LockService;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
@@ -20,9 +21,19 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CourseCreateService {
 
+    private final LockService lockService;
+
     private final CourseJpaRepository courseJpaRepository;
     private final LectureJpaRepository lectureJpaRepository;
     private final StudentJpaRepository studentJpaRepository;
+
+    public void createCourseWithLock(Long studentId, Long lectureId) {
+        String lockKey = lockService.buildLockKey(studentId, lectureId);
+
+        lockService.executeWithLock(lockKey, () -> {
+            createCourse(studentId, lectureId);
+        });
+    }
 
     @Transactional
     public CourseResponse createCourse(Long studentId, Long lectureId) {
