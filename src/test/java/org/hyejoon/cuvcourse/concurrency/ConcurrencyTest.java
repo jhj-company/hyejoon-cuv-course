@@ -90,7 +90,8 @@ public class ConcurrencyTest {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                return lockService.decrease(studentId, lectureId);
+                courseCreateService.createCourseWithLock(studentId, lectureId);
+                return true;
             }));
         }
 
