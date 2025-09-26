@@ -1,4 +1,4 @@
-package org.hyejoon.cuvcourse.domain.course.create.service;
+package org.hyejoon.cuvcourse.domain.course.courseregist.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,12 +22,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @SpringBootTest
-public class CourseCreateTest {
+public class CourseRegistTest {
 
     @Autowired
     // courseRegistService - 무조건 실패
     // courseRegistSpinLockService - 성공
-    @Qualifier("courseRegistSpinLockService")
+    // courseRegistPubSubLockService - 성공
+    @Qualifier("courseRegistPubSubLockService")
     private CourseRegistUseCase courseCreateService;
 
     @Autowired

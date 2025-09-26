@@ -1,8 +1,9 @@
-package org.hyejoon.cuvcourse.domain.course.create.service;
+package org.hyejoon.cuvcourse.domain.course.courseregist.service;
 
 import lombok.RequiredArgsConstructor;
-import org.hyejoon.cuvcourse.domain.course.create.dto.CourseResponse;
-import org.hyejoon.cuvcourse.domain.course.create.exception.CourseCreateExceptionEnum;
+
+import org.hyejoon.cuvcourse.domain.course.courseregist.dto.CourseResponse;
+import org.hyejoon.cuvcourse.domain.course.courseregist.exception.CourseRegistExceptionEnum;
 import org.hyejoon.cuvcourse.domain.course.entity.Course;
 import org.hyejoon.cuvcourse.domain.course.entity.CourseId;
 import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
@@ -27,15 +28,15 @@ public class CourseRegistService implements CourseRegistUseCase {
     @Transactional
     public CourseResponse registerCourse(long studentId, long lectureId) {
         Student student = studentJpaRepository.findById(studentId)
-            .orElseThrow(() -> new BusinessException(CourseCreateExceptionEnum.STUDENT_NOT_FOUND));
+            .orElseThrow(() -> new BusinessException(CourseRegistExceptionEnum.STUDENT_NOT_FOUND));
         Lecture lecture = lectureJpaRepository.findById(lectureId)
-            .orElseThrow(() -> new BusinessException(CourseCreateExceptionEnum.LECTURE_NOT_FOUND));
+            .orElseThrow(() -> new BusinessException(CourseRegistExceptionEnum.LECTURE_NOT_FOUND));
 
         CourseId courseId = CourseId.of(lecture, student);
 
         // 중복 신청 금지
         if (courseJpaRepository.existsById(courseId)) {
-            throw new BusinessException(CourseCreateExceptionEnum.ALREADY_REGISTERED);
+            throw new BusinessException(CourseRegistExceptionEnum.ALREADY_REGISTERED);
         }
 
         Course course = courseCreationService.createCourseIfAvailable(lecture, courseId);

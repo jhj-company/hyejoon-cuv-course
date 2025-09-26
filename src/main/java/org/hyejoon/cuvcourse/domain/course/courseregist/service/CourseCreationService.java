@@ -1,6 +1,6 @@
-package org.hyejoon.cuvcourse.domain.course.create.service;
+package org.hyejoon.cuvcourse.domain.course.courseregist.service;
 
-import org.hyejoon.cuvcourse.domain.course.create.exception.CourseCreateExceptionEnum;
+import org.hyejoon.cuvcourse.domain.course.courseregist.exception.CourseRegistExceptionEnum;
 import org.hyejoon.cuvcourse.domain.course.entity.Course;
 import org.hyejoon.cuvcourse.domain.course.entity.CourseId;
 import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
@@ -23,7 +23,7 @@ public class CourseCreationService {
 
         // 정원 초과 금지
         if (currentHeadcount >= lecture.getCapacity()) {
-            throw new BusinessException(CourseCreateExceptionEnum.CAPACITY_FULL);
+            throw new BusinessException(CourseRegistExceptionEnum.CAPACITY_FULL);
         }
 
         Course course = Course.from(courseId);
