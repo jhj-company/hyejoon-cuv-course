@@ -67,6 +67,7 @@ public class CourseCreateTest {
         }
 
         // When
+        // 시스템에 리소스에 근거하여 안정적인 스레드 생성
         int availableProcessors = Runtime.getRuntime().availableProcessors();
         ExecutorService executor = Executors.newFixedThreadPool(availableProcessors * 2);
         AtomicInteger successCount = new AtomicInteger(0);
