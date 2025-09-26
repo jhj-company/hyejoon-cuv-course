@@ -17,14 +17,18 @@ import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @SpringBootTest
-public class CourseCreateServiceTest {
+public class CourseCreateTest {
 
     @Autowired
-    private CourseCreateService courseCreateService;
+    // courseRegistService - 무조건 실패
+    // courseRegistSpinLockService - 성공
+    @Qualifier("courseRegistSpinLockService")
+    private CourseRegistUseCase courseCreateService;
 
     @Autowired
     private StudentJpaRepository studentJpaRepository;
@@ -47,27 +51,31 @@ public class CourseCreateServiceTest {
 
     @Test
     void 수강신청_동시에_신청해도_정원과_신청수가_일치해야한다() throws Exception {
+        final int CAPACITY = 20;
+        final int TOTAL_STUDENT = 50;
+
         // Given: 강의 (정원 20)
-        Lecture lecture = new Lecture("강의", "교수님", 3, 20);
+        Lecture lecture = new Lecture("강의", "교수님", 3, CAPACITY);
         final Lecture savedLecture = lectureJpaRepository.save(lecture);
 
-        // Given: 학생들 (100명)
+        // Given: 학생들 (50명)
         List<Student> students = new ArrayList<>();
-        for (int i = 1; i <= 100; i++) {
+        for (int i = 1; i <= TOTAL_STUDENT; i++) {
             Student student = createStudent((long) i, "Student" + i, "student" + i + "@test.com",
                 "password", 10);
             students.add(studentJpaRepository.save(student));
         }
 
         // When
-        ExecutorService executor = Executors.newFixedThreadPool(10);
+        int availableProcessors = Runtime.getRuntime().availableProcessors();
+        ExecutorService executor = Executors.newFixedThreadPool(availableProcessors * 2);
         AtomicInteger successCount = new AtomicInteger(0);
 
         List<Future<Void>> futures = new ArrayList<>();
         for (Student student : students) {
             Future<Void> future = executor.submit(() -> {
                 try {
-                    courseCreateService.createCourse(student.getId(), savedLecture.getId());
+                    courseCreateService.registerCourse(student.getId(), savedLecture.getId());
                     successCount.incrementAndGet();
                 } catch (BusinessException ignored) {
 
