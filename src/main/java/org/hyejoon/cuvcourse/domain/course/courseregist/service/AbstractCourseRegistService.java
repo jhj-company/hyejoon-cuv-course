@@ -9,6 +9,12 @@ import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractCourseRegistService implements CourseRegistUseCase {
 
     protected static final String COURSE_REGIST_LOCK_KEY = "course-service:regist-lock:";
@@ -19,16 +25,10 @@ public abstract class AbstractCourseRegistService implements CourseRegistUseCase
     protected final CourseCreationService courseCreationService;
     protected final DistributedLock distributedLock;
 
-    protected AbstractCourseRegistService(CourseRegistrationValidator validator,
-        CourseCreationService courseCreationService,
-        DistributedLock distributedLock) {
-        this.validator = validator;
-        this.courseCreationService = courseCreationService;
-        this.distributedLock = distributedLock;
-    }
-
     @Override
     public CourseResponse registerCourse(long studentId, long lectureId) {
+        log.debug("Lock type: {}", distributedLock.getType());
+
         Student student = validator.getStudent(studentId);
         Lecture lecture = validator.getLecture(lectureId);
 
@@ -40,6 +40,11 @@ public abstract class AbstractCourseRegistService implements CourseRegistUseCase
 
         if (acquireLockWithRetry(lockKey)) {
             try {
+                try {
+                    Thread.sleep(100); // 100ms 정도의 지연을 주어 실제 운영 환경처럼 처리함
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
                 Course course = courseCreationService.createCourseIfAvailable(lecture, courseId);
                 return CourseResponse.from(course);
             } finally {
