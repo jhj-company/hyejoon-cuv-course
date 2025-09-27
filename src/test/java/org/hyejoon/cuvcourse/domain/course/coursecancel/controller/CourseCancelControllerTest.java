@@ -1,4 +1,4 @@
-package org.hyejoon.cuvcourse.coursecancel.controller;
+package org.hyejoon.cuvcourse.domain.course.coursecancel.controller;
 
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -43,9 +43,9 @@ public class CourseCancelControllerTest {
 
         // when & then
         mockMvc.perform(delete("/api/courses")
-                .header(AuthConstant.X_STUDENT_ID, studentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+            .header(AuthConstant.X_STUDENT_ID, studentId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk());
     }
 
@@ -61,9 +61,9 @@ public class CourseCancelControllerTest {
             .when(courseCancelService).courseCancel(lectureId, studentId);
 
         mockMvc.perform(delete("/api/courses")
-                .header(AuthConstant.X_STUDENT_ID, studentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+            .header(AuthConstant.X_STUDENT_ID, studentId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isNotFound());
     }
 }
