@@ -17,7 +17,7 @@ public class LockManager {
     private static final int LOCK_ACQUIRE_RETRY_DELAY_MS = 1000;
     private static final int LOCK_ACQUIRE_MAX_RETRY = 3;
 
-    public <T> T lockIn(DistributedLock distributedLock, String key,
+    public <T> T executeWithLock(DistributedLock distributedLock, String key,
         Callable<T> callable) {
         boolean acquired = false;
         int attempts = 0;
@@ -51,9 +51,9 @@ public class LockManager {
         }
     }
 
-    public void lockIn(DistributedLock distributedLock, String key,
+    public void executeWithLock(DistributedLock distributedLock, String key,
         Runnable runnable) throws Exception {
-        this.lockIn(distributedLock, key, () -> {
+        this.executeWithLock(distributedLock, key, () -> {
             runnable.run();
             return null;
         });
