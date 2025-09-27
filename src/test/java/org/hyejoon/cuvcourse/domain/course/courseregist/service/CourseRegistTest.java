@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
@@ -29,7 +29,7 @@ public class CourseRegistTest {
     // courseRegistSpinLockService - 성공
     // courseRegistPubSubLockService - 성공
     // courseRegistRedissonService - 성공
-    @Qualifier("courseRegistRedissonService")
+    @Qualifier("courseRegistService")
     private CourseRegistUseCase courseCreateService;
 
     @Autowired
@@ -52,14 +52,16 @@ public class CourseRegistTest {
 
     @Test
     void 수강신청_동시에_신청해도_정원과_신청수가_일치해야한다() throws Exception {
-        final int CAPACITY = 20;
+        // Given
+
+        // 강의 정원
+        final int CAPACITY = 10;
+        // 해당 강의를 신청하는 학생 수
         final int TOTAL_STUDENT = 60;
 
-        // Given: 강의 (정원 20)
         Lecture lecture = new Lecture("강의", "교수님", 3, CAPACITY);
         final Lecture savedLecture = lectureJpaRepository.save(lecture);
 
-        // Given: 학생들 (50명)
         List<Student> students = new ArrayList<>();
         for (int i = 1; i <= TOTAL_STUDENT; i++) {
             Student student = createStudent("Student" + i, "student" + i + "@test.com",
@@ -68,32 +70,28 @@ public class CourseRegistTest {
         }
 
         // When
-        // 시스템에 리소스에 근거하여 안정적인 스레드 생성
-        int availableProcessors = Runtime.getRuntime().availableProcessors();
-        ExecutorService executor = Executors.newFixedThreadPool(availableProcessors * 2);
+        ExecutorService executor = Executors.newFixedThreadPool(TOTAL_STUDENT);
         AtomicInteger successCount = new AtomicInteger(0);
+        CountDownLatch latch = new CountDownLatch(TOTAL_STUDENT);
 
-        List<Future<Void>> futures = new ArrayList<>();
         for (Student student : students) {
-            Future<Void> future = executor.submit(() -> {
+            executor.submit(() -> {
                 try {
                     courseCreateService.registerCourse(student.getId(), savedLecture.getId());
                     successCount.incrementAndGet();
                 } catch (BusinessException ignored) {
 
+                } finally {
+                    latch.countDown();
                 }
-                return null;
             });
-            futures.add(future);
         }
 
-        for (Future<Void> future : futures) {
-            future.get();
-        }
+        latch.await();
         executor.shutdown();
 
         // Then
         int actualSuccessCount = successCount.get();
-        assertThat(actualSuccessCount).isEqualTo(20);
+        assertThat(actualSuccessCount).isEqualTo(CAPACITY);
     }
 }
