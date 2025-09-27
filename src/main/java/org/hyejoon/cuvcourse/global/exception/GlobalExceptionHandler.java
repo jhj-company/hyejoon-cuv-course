@@ -1,8 +1,11 @@
 package org.hyejoon.cuvcourse.global.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.stream.Collectors;
 import org.hyejoon.cuvcourse.global.dto.GlobalResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -47,7 +51,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<GlobalResponse<Void>> handleException(Exception ex) {
-        GlobalResponse<Void> response = GlobalResponse.badRequest("Internal server error", null);
+        log.warn("Exception occured: {}", ex.getMessage());
+        GlobalResponse<Void> response = new GlobalResponse<>(HttpStatus.INTERNAL_SERVER_ERROR,
+            "Internal server error", null);
         return ResponseEntity.status(response.status()).body(response);
     }
 }
