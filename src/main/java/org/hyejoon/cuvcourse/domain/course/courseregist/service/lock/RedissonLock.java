@@ -37,4 +37,9 @@ public class RedissonLock implements DistributedLock {
             lock.unlock();
         }
     }
+
+    @Override
+    public String getType() {
+        return "RedissonLock";
+    }
 }

@@ -34,4 +34,9 @@ public class PubSubLock implements DistributedLock {
         Lock lock = redisLockRegistry.obtain(key);
         lock.unlock();
     }
+
+    @Override
+    public String getType() {
+        return "PubSubLock";
+    }
 }
