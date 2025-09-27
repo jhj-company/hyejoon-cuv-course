@@ -23,4 +23,9 @@ public class SpinLock implements DistributedLock {
     public void releaseLock(String key) {
         spinLockService.releaseLock(key);
     }
+
+    @Override
+    public String getType() {
+        return "SpinLock";
+    }
 }

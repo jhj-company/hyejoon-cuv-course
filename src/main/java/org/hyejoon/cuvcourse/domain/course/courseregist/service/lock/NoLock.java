@@ -14,4 +14,9 @@ public class NoLock implements DistributedLock {
     public void releaseLock(String key) {
         // 아무것도 하지 않음
     }
+
+    @Override
+    public String getType() {
+        return "NoLock";
+    }
 }
