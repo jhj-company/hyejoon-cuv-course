@@ -1,0 +1,1 @@
+set -a; . ./.env; set +a; ./gradlew bootRun
