@@ -40,7 +40,7 @@ services:
 
   mysql-dev:
     image: mysql:8.0
-    container_name: hjcuv-mysql
+    container_name: hjcuv-mysql-dev
     environment:
       MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: hjcuv-dev
