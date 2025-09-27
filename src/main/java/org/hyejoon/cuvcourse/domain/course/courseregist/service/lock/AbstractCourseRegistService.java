@@ -40,9 +40,9 @@ public abstract class AbstractCourseRegistService implements CourseRegistUseCase
 
         simulateDelay();
 
-        Course course = lockManager.lockIn(distributedLock, lockKey, () -> {
-            return courseCreationService.createCourseIfAvailable(lecture, courseId);
-        });
+        Course course = lockManager.executeWithLock(distributedLock, lockKey,
+            () -> courseCreationService.createCourseIfAvailable(lecture, courseId)
+        );
 
         return CourseResponse.from(course);
     }
