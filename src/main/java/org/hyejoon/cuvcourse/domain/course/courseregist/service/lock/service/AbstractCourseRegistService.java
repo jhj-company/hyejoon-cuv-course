@@ -1,7 +1,10 @@
-package org.hyejoon.cuvcourse.domain.course.courseregist.service;
+package org.hyejoon.cuvcourse.domain.course.courseregist.service.lock.service;
 
 import org.hyejoon.cuvcourse.domain.course.courseregist.dto.CourseResponse;
 import org.hyejoon.cuvcourse.domain.course.courseregist.exception.CourseRegistExceptionEnum;
+import org.hyejoon.cuvcourse.domain.course.courseregist.service.CourseCreationService;
+import org.hyejoon.cuvcourse.domain.course.courseregist.service.CourseRegistUseCase;
+import org.hyejoon.cuvcourse.domain.course.courseregist.service.CourseRegistrationValidator;
 import org.hyejoon.cuvcourse.domain.course.courseregist.service.lock.DistributedLock;
 import org.hyejoon.cuvcourse.domain.course.entity.Course;
 import org.hyejoon.cuvcourse.domain.course.entity.CourseId;
