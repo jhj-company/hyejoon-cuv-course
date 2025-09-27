@@ -1,8 +1,9 @@
-package org.hyejoon.cuvcourse.domain.course.courseregist.service.lock.service;
+package org.hyejoon.cuvcourse.domain.course.courseregist.service.lock;
 
 import org.hyejoon.cuvcourse.domain.course.courseregist.service.CourseCreationService;
 import org.hyejoon.cuvcourse.domain.course.courseregist.service.CourseRegistrationValidator;
-import org.hyejoon.cuvcourse.domain.course.courseregist.service.lock.DistributedLock;
+import org.hyejoon.cuvcourse.global.lock.DistributedLock;
+import org.hyejoon.cuvcourse.global.lock.LockManager;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,8 @@ public class CourseRegistPubSubLockService extends AbstractCourseRegistService {
 
     public CourseRegistPubSubLockService(CourseRegistrationValidator validator,
         CourseCreationService courseCreationService,
-        @Qualifier("pubSubLock") DistributedLock distributedLock) {
-        super(validator, courseCreationService, distributedLock);
+        @Qualifier("pubSubLock") DistributedLock distributedLock,
+        LockManager lockManager) {
+        super(validator, courseCreationService, distributedLock, lockManager);
     }
 }

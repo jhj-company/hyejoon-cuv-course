@@ -55,7 +55,7 @@ public class CourseRegistTest {
         // Given
 
         // 강의 정원
-        final int CAPACITY = 10;
+        final int CAPACITY = 30;
         // 해당 강의를 신청하는 학생 수
         final int TOTAL_STUDENT = 60;
 

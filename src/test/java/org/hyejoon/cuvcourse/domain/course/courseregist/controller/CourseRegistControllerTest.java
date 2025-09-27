@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import org.hyejoon.cuvcourse.domain.course.courseregist.dto.CourseRegistRequest;
 import org.hyejoon.cuvcourse.domain.course.courseregist.dto.CourseResponse;
 import org.hyejoon.cuvcourse.domain.course.courseregist.exception.CourseRegistExceptionEnum;
-import org.hyejoon.cuvcourse.domain.course.courseregist.service.lock.service.CourseRegistService;
+import org.hyejoon.cuvcourse.domain.course.courseregist.service.lock.CourseRegistService;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package org.hyejoon.cuvcourse.domain.course.courseregist.service.lock;
+package org.hyejoon.cuvcourse.global.lock;
 
 import org.springframework.stereotype.Component;
 
