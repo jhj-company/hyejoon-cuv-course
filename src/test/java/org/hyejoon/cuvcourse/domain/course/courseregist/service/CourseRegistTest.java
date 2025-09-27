@@ -5,16 +5,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
 import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
-import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,7 +29,7 @@ public class CourseRegistTest {
     // courseRegistSpinLockService - 성공
     // courseRegistPubSubLockService - 성공
     // courseRegistRedissonService - 성공
-    @Qualifier("courseRegistService")
+    @Qualifier("courseRegistRedissonService")
     private CourseRegistUseCase courseCreateService;
 
     @Autowired
@@ -72,23 +72,26 @@ public class CourseRegistTest {
         // When
         ExecutorService executor = Executors.newFixedThreadPool(TOTAL_STUDENT);
         AtomicInteger successCount = new AtomicInteger(0);
-        CountDownLatch latch = new CountDownLatch(TOTAL_STUDENT);
+        CyclicBarrier barrier = new CyclicBarrier(TOTAL_STUDENT);
 
         for (Student student : students) {
             executor.submit(() -> {
                 try {
+                    barrier.await();  // 모든 스레드가 동시에 시작하도록 기다림
                     courseCreateService.registerCourse(student.getId(), savedLecture.getId());
                     successCount.incrementAndGet();
-                } catch (BusinessException ignored) {
-
-                } finally {
-                    latch.countDown();
+                } catch (Exception ignored) {
+                    // handle exception
                 }
             });
         }
 
-        latch.await();
         executor.shutdown();
+        try {
+            executor.awaitTermination(20, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
 
         // Then
         int actualSuccessCount = successCount.get();
