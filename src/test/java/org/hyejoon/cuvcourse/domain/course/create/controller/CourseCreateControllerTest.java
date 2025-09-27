@@ -40,7 +40,7 @@ class CourseCreateControllerTest {
         long lectureId = 10L;
         CourseResponse response = new CourseResponse(studentId, lectureId, LocalDateTime.now());
 
-        given(courseCreateService.createCourse(studentId, lectureId))
+        given(courseCreateService.createCourseWithDistributedLock(studentId, lectureId))
             .willReturn(response);
 
         String requestBody = objectMapper.writeValueAsString(
@@ -70,7 +70,7 @@ class CourseCreateControllerTest {
 
         doThrow(new BusinessException(CourseExceptionEnum.ALREADY_REGISTERED))
             .when(courseCreateService)
-            .createCourse(anyLong(), anyLong());
+            .createCourseWithDistributedLock(anyLong(), anyLong());
 
         mockMvc.perform(post("/api/courses")
                 .header("X-Student-Id", studentId)

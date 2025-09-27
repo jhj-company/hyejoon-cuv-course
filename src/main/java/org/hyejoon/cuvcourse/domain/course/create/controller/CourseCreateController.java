@@ -24,8 +24,9 @@ public class CourseCreateController {
         @Valid @RequestBody CourseCreateRequest request,
         @RequestHeader(AuthConstant.X_STUDENT_ID) Long studentId
     ) {
-        CourseResponse courseResponse = courseCreateService.createCourse(studentId,
-            request.lectureId());
+        
+        CourseResponse courseResponse =
+            courseCreateService.createCourseWithDistributedLock(studentId, request.lectureId());
         return GlobalResponse.ok("수강신청이 성공적으로 완료되었습니다.", courseResponse);
     }
 }
