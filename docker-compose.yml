@@ -38,6 +38,19 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql # MySQL 공식 기본 데이터 디렉토리
 
+  mysql-dev:
+    image: mysql:8.0
+    container_name: hjcuv-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: hjcuv-dev
+      MYSQL_USER: hjcuv
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql-dev # MySQL 공식 기본 데이터 디렉토리
+
   redis:
     image: redis:7.4
     container_name: hjcuv-redis
