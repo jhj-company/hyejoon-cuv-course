@@ -11,7 +11,7 @@ import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
-import org.hyejoon.cuvcourse.global.redis.LockService;
+import org.hyejoon.cuvcourse.global.redis.service.LockService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,23 +33,33 @@ public class CourseCreateService {
             .orElseThrow(() -> new BusinessException(CourseExceptionEnum.LECTURE_NOT_FOUND));
 
         CourseId courseId = CourseId.of(lecture, student);
+        String lectureKey = "lecture:" + lectureId;
 
-        // 중복 신청 금지
-        if (courseJpaRepository.existsById(courseId)) {
-            throw new BusinessException(CourseExceptionEnum.ALREADY_REGISTERED);
+        lockService.acquireLockWithRetry(lectureKey);
+        try {
+            long currentHeadcount = courseJpaRepository.countByIdLecture(lecture);
+            if (currentHeadcount >= lecture.getCapacity()) {
+                throw new BusinessException(CourseExceptionEnum.CAPACITY_FULL);
+            }
+
+            if (courseJpaRepository.existsById(courseId)) {
+                throw new BusinessException(CourseExceptionEnum.ALREADY_REGISTERED);
+            }
+
+            boolean canRegister = lockService.tryAcquire(lectureKey, lecture.getCapacity());
+            if (!canRegister) {
+                throw new BusinessException(CourseExceptionEnum.CAPACITY_FULL);
+            }
+            Course course = Course.from(courseId);
+            courseJpaRepository.save(course);
+
+            return CourseResponse.from(course);
+
+        } catch (Exception e) {
+            lockService.decrementCount(lectureKey);
+            throw e;
+        } finally {
+            lockService.releaseLock(lectureKey);
         }
-
-        long currentHeadcount = courseJpaRepository.countByIdLecture(lecture);
-
-        // 정원 초과 금지
-        boolean canRegister = lockService.tryAcquire("lecture:" + lectureId, lecture.getCapacity(), currentHeadcount);
-        if (!canRegister) {
-            throw new BusinessException(CourseExceptionEnum.CAPACITY_FULL);
-        }
-
-        Course course = Course.from(courseId);
-        courseJpaRepository.save(course);
-
-        return CourseResponse.from(course);
     }
 }

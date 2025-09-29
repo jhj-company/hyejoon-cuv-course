@@ -4,11 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import org.hyejoon.cuvcourse.domain.course.create.dto.CourseResponse;
 import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
 import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
@@ -40,9 +39,9 @@ public class CourseCreateServiceTest {
 
     @BeforeEach
     void setUp() {
-        courseJpaRepository.deleteAll();
-        lectureJpaRepository.deleteAll();
-        studentJpaRepository.deleteAll();
+        courseJpaRepository.deleteAllInBatch();
+        lectureJpaRepository.deleteAllInBatch();
+        studentJpaRepository.deleteAllInBatch();
 
         // 테스트용 강의 생성
         lecture = new Lecture(
@@ -65,16 +64,20 @@ public class CourseCreateServiceTest {
     }
 
     @Test
-    void testConcurrentCourseRegistration() throws InterruptedException {
+    void testConcurrentCourseRegistrationWithCyclicBarrier() throws InterruptedException {
         int threadCount = 300;
-        ExecutorService executor = Executors.newFixedThreadPool(300);
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        CyclicBarrier barrier = new CyclicBarrier(threadCount);
         Callable<String> task = () -> {
             try {
+                barrier.await();
                 Student student = students.get((int) (Math.random() * students.size()));
                 courseCreateService.createCourse(student.getId(), lecture.getId());
                 return "SUCCESS";
             } catch (BusinessException e) {
                 return e.getMessage();
+            } catch (Exception e) {
+                return "ERROR: " + e.getMessage();
             }
         };
 
@@ -107,7 +110,6 @@ public class CourseCreateServiceTest {
         System.out.println("실패: " + failureCount);
         System.out.println("DB에 실제 저장된 수강 인원: " + totalCourses);
 
-        // 정원 초과 검증
         assertThat(totalCourses).isLessThanOrEqualTo(lecture.getCapacity());
     }
 }
