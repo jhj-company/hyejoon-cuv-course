@@ -15,6 +15,7 @@ import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -64,6 +65,7 @@ public class CourseCreateServiceTest {
     }
 
     @Test
+    @DisplayName("동시 수강요청이 있을 때, 동시성 제어에 성공한다.")
     void testConcurrentCourseRegistrationWithCyclicBarrier() throws InterruptedException {
         int threadCount = 300;
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
