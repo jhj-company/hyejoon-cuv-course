@@ -32,7 +32,7 @@ public class CourseRegistTest {
     // courseRegistPubSubLockService - 성공
     // courseRegistRedissonService - 성공
     @Qualifier("courseRegistRedissonService")
-    private CourseRegistService courseCreateService;
+    private CourseRegistService courseRegistService;
 
     @Autowired
     private StudentJpaRepository studentJpaRepository;
@@ -84,7 +84,7 @@ public class CourseRegistTest {
             executor.submit(() -> {
                 try {
                     barrier.await();  // 모든 스레드가 동시에 시작하도록 기다림
-                    courseCreateService.registerCourse(student.getId(), savedLecture.getId());
+                    courseRegistService.registerCourse(student.getId(), savedLecture.getId());
                     successCount.incrementAndGet();
                 } catch (Exception ignored) {
                     // handle exception
