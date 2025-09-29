@@ -10,7 +10,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
 import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
@@ -19,18 +18,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @SpringBootTest
+@Import(TestCourseRegistConfig.class)
 public class CourseRegistTest {
 
     @Autowired
-    // courseRegistService - 무조건 실패
+    // courseRegistNoLockService - 무조건 실패
     // courseRegistSpinLockService - 성공
     // courseRegistPubSubLockService - 성공
     // courseRegistRedissonService - 성공
     @Qualifier("courseRegistRedissonService")
-    private CourseRegistUseCase courseCreateService;
+    private CourseRegistService courseCreateService;
 
     @Autowired
     private StudentJpaRepository studentJpaRepository;
@@ -57,7 +58,7 @@ public class CourseRegistTest {
         // 강의 정원
         final int CAPACITY = 30;
         // 해당 강의를 신청하는 학생 수
-        final int TOTAL_STUDENT = 60;
+        final int TOTAL_STUDENT = 150;
 
         Lecture lecture = new Lecture("강의", "교수님", 3, CAPACITY);
         final Lecture savedLecture = lectureJpaRepository.save(lecture);
