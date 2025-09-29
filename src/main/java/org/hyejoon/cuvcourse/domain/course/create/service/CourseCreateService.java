@@ -15,7 +15,6 @@ import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.hyejoon.cuvcourse.global.lock.DistributedLock;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +25,6 @@ public class CourseCreateService {
     private final LectureJpaRepository lectureJpaRepository;
 
     @DistributedLock(key = "'lecture:' + #lectureId")
-    @Transactional
     public CourseResponse createCourse(Long studentId, Long lectureId) {
         Student student = studentJpaRepository.findById(studentId)
             .orElseThrow(() -> new BusinessException(CourseExceptionEnum.STUDENT_NOT_FOUND));

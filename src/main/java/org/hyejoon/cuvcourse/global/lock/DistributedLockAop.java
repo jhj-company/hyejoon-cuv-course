@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 public class DistributedLockAop {
 
     private final LettuceLockFacade lettuceLockFacade;
+    private final AopForTransaction aopForTransaction;
 
     @Around("@annotation(org.hyejoon.cuvcourse.global.lock.DistributedLock)")
     public Object lock(final ProceedingJoinPoint joinPoint) throws Throwable {
@@ -42,7 +43,7 @@ public class DistributedLockAop {
 
         log.info("Acquired lock for key: {}", key);
         try {
-            return joinPoint.proceed();
+            return aopForTransaction.proceed(joinPoint);
         } finally {
             lettuceLockFacade.releaseLock(key);
             log.info("Released lock for key: {}", key);

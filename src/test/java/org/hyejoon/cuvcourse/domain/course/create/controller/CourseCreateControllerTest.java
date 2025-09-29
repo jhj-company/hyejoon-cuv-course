@@ -1,4 +1,4 @@
-package org.hyejoon.cuvcourse.domain.course.create.controller; // 👈 패키지 경로는 실제 위치에 맞게 확인해주세요
+package org.hyejoon.cuvcourse.domain.course.create.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
