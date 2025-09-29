@@ -5,8 +5,8 @@ import org.hyejoon.cuvcourse.domain.course.courseregist.exception.CourseRegistEx
 import org.hyejoon.cuvcourse.domain.course.entity.Course;
 import org.hyejoon.cuvcourse.domain.course.entity.CourseId;
 import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
+import org.hyejoon.cuvcourse.domain.lecture.cache.LectureCacheService;
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
-import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
@@ -28,21 +28,22 @@ public class CourseRegistService {
     private final LockManager lockManager;
     private final DistributedLock distributedLock;
     private final CourseJpaRepository courseJpaRepository;
-    private final LectureJpaRepository lectureJpaRepository;
+    private final LectureCacheService lectureCacheService;
     private final StudentJpaRepository studentJpaRepository;
 
     public CourseResponse registerCourse(long studentId, long lectureId) {
         log.debug("Lock type: {}", distributedLock.getType());
 
         Student student = studentJpaRepository.findById(studentId)
-            .orElseThrow(() -> new BusinessException(CourseRegistExceptionEnum.STUDENT_NOT_FOUND));
-        Lecture lecture = lectureJpaRepository.findById(lectureId)
-            .orElseThrow(() -> new BusinessException(CourseRegistExceptionEnum.LECTURE_NOT_FOUND));
-        CourseId courseId = CourseId.of(lecture, student);
-
+            .orElseThrow(() -> new BusinessException(
+                CourseRegistExceptionEnum.STUDENT_NOT_FOUND));
         String lockKey = COURSE_REGIST_LOCK_KEY + lectureId;
 
         Course course = lockManager.executeWithLock(distributedLock, lockKey, () -> {
+
+            Lecture lecture = lectureCacheService.getLectureById(lectureId);
+            CourseId courseId = CourseId.of(lecture, student);
+
             if (courseJpaRepository.existsById(courseId)) {
                 throw new BusinessException(CourseRegistExceptionEnum.ALREADY_REGISTERED);
             }

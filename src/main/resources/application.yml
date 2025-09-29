@@ -12,10 +12,6 @@ spring:
         highlight_sql: true
         ddl-auto: none
     open-in-view: false
-  data:
-    redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
   flyway:
     enabled: true # Flyway 활성화
     locations: classpath:db/migration # 마이그레이션 SQL 경로
@@ -23,8 +19,14 @@ spring:
     baseline-version: 20250925_1530
     validate-on-migrate: true # SQL 변조/누락 방지
     clean-disabled: true # 스키마 초기화 금지
-    
-lock:
-  redis:
+
+redis:
+  lock:
+    host: ${LOCK_REDIS_HOST}
+    port: ${LOCK_REDIS_PORT}
     registry-key: "course-service:regist-course"
     expired-ms: 10000
+  cache:
+    host: ${CACHE_REDIS_HOST}
+    port: ${CACHE_REDIS_PORT}
+    ttl-minutes: 5

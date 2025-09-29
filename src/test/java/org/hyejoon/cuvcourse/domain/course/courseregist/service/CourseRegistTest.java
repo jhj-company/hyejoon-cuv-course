@@ -14,6 +14,10 @@ import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
 import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
+import org.hyejoon.cuvcourse.global.config.RedisCacheConfig;
+import org.hyejoon.cuvcourse.global.config.RedisConfig;
+import org.hyejoon.cuvcourse.global.config.RedisLockConfig;
+import org.hyejoon.cuvcourse.global.config.RedissonConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +27,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @SpringBootTest
-@Import(TestCourseRegistConfig.class)
+@Import({TestCourseRegistConfig.class, RedisConfig.class, RedisLockConfig.class,
+    RedisCacheConfig.class, RedissonConfig.class})
 public class CourseRegistTest {
 
     @Autowired
@@ -62,7 +67,7 @@ public class CourseRegistTest {
         // 해당 강의를 신청하는 학생 수
         final int TOTAL_STUDENT = 150;
 
-        Lecture lecture = new Lecture("강의", "교수님", 3, CAPACITY);
+        Lecture lecture = new Lecture("강의", "교수님", 3, CAPACITY, 0);
         final Lecture savedLecture = lectureJpaRepository.save(lecture);
 
         // JdbcTemplate을 사용한 배치 삽입
@@ -87,7 +92,6 @@ public class CourseRegistTest {
                     courseRegistService.registerCourse(student.getId(), savedLecture.getId());
                     successCount.incrementAndGet();
                 } catch (Exception ignored) {
-                    // handle exception
                 }
             });
         }

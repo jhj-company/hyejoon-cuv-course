@@ -15,12 +15,14 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(name = "lectures")
+@Slf4j
 public class Lecture extends BaseTimeEntity {
 
     @Id
@@ -42,11 +44,13 @@ public class Lecture extends BaseTimeEntity {
     @Column(nullable = false)
     private int total;
 
-    public Lecture(String lectureTitle, String professorName, int credits, int capacity) {
+    public Lecture(String lectureTitle, String professorName, int credits, int capacity,
+        int total) {
         this.lectureTitle = lectureTitle;
         this.professorName = professorName;
         this.credits = credits;
         this.capacity = capacity;
+        this.total = total;
     }
 
     public void increaseTotal() {

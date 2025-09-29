@@ -41,7 +41,7 @@ public class LockManager {
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
-                log.warn("Exception occured: {}", e.getMessage());
+                log.info("Exception occured: {}", e.getMessage());
                 throw new RuntimeException("Lock Acquire Failed", e);
             } finally {
                 distributedLock.releaseLock(key);
