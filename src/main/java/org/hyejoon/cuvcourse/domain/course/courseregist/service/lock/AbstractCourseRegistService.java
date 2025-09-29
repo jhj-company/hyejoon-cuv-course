@@ -34,14 +34,15 @@ public abstract class AbstractCourseRegistService implements CourseRegistUseCase
         Lecture lecture = validator.getLecture(lectureId);
         CourseId courseId = CourseId.of(lecture, student);
 
-        validator.validateDuplicateRegistration(courseId);
-
         String lockKey = COURSE_REGIST_LOCK_KEY + lectureId;
 
         simulateDelay();
 
         Course course = lockManager.executeWithLock(distributedLock, lockKey,
-            () -> courseCreationService.createCourseIfAvailable(lecture, courseId)
+            () -> {
+                validator.validateDuplicateRegistration(courseId);
+                return courseCreationService.createCourseIfAvailable(lecture, courseId);
+            }
         );
 
         return CourseResponse.from(course);
