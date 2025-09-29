@@ -13,23 +13,30 @@ import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
+import org.hyejoon.cuvcourse.global.lock.LettuceLockService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CourseCreateService {
+public class CourseCreateServiceWithRedis {
 
     private final CourseJpaRepository courseJpaRepository;
     private final LectureJpaRepository lectureJpaRepository;
     private final StudentJpaRepository studentJpaRepository;
+    private final LettuceLockService lettuceLockService;
+
+    public CourseResponse createCourseWithLock(Long studentId, Long lectureId) {
+        String key = "lock:course:" + lectureId;
+        return lettuceLockService.withLock(key, () -> createTx(studentId, lectureId));
+    }
 
     @Transactional
-    public CourseResponse createCourse(Long studentId, Long lectureId) {
-        Student student = studentJpaRepository.findById(studentId)
-            .orElseThrow(() -> new BusinessException(CourseExceptionEnum.STUDENT_NOT_FOUND));
+    protected CourseResponse createTx(Long studentId, Long lectureId) {
         Lecture lecture = lectureJpaRepository.findById(lectureId)
             .orElseThrow(() -> new BusinessException(CourseExceptionEnum.LECTURE_NOT_FOUND));
+        Student student = studentJpaRepository.findById(studentId)
+            .orElseThrow(() -> new BusinessException(CourseExceptionEnum.STUDENT_NOT_FOUND));
 
         CourseId courseId = CourseId.of(lecture, student);
 

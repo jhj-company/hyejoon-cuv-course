@@ -18,18 +18,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CourseCreateService {
+public class CourseCreateServiceWithPessimistic {
 
     private final CourseJpaRepository courseJpaRepository;
     private final LectureJpaRepository lectureJpaRepository;
     private final StudentJpaRepository studentJpaRepository;
 
     @Transactional
-    public CourseResponse createCourse(Long studentId, Long lectureId) {
+    public CourseResponse createCourseWithLock(Long studentId, Long lectureId) {
+        Lecture lecture = lectureJpaRepository.findByIdWithPessimisticWrite(lectureId)
+            .orElseThrow(() -> new BusinessException(CourseExceptionEnum.LECTURE_NOT_FOUND));
         Student student = studentJpaRepository.findById(studentId)
             .orElseThrow(() -> new BusinessException(CourseExceptionEnum.STUDENT_NOT_FOUND));
-        Lecture lecture = lectureJpaRepository.findById(lectureId)
-            .orElseThrow(() -> new BusinessException(CourseExceptionEnum.LECTURE_NOT_FOUND));
 
         CourseId courseId = CourseId.of(lecture, student);
 

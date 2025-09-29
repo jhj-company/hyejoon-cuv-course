@@ -1,6 +1,8 @@
 package org.hyejoon.cuvcourse.domain.course.create.service;
 
 import static org.hyejoon.cuvcourse.domain.course.exception.CourseExceptionEnum.ALREADY_REGISTERED;
+import static org.hyejoon.cuvcourse.domain.course.exception.CourseExceptionEnum.LECTURE_NOT_FOUND;
+import static org.hyejoon.cuvcourse.domain.course.exception.CourseExceptionEnum.STUDENT_NOT_FOUND;
 
 import lombok.RequiredArgsConstructor;
 import org.hyejoon.cuvcourse.domain.course.create.dto.CourseResponse;
@@ -18,18 +20,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CourseCreateService {
+public class CourseCreateServiceWithOptimisticTx {
 
     private final CourseJpaRepository courseJpaRepository;
     private final LectureJpaRepository lectureJpaRepository;
     private final StudentJpaRepository studentJpaRepository;
 
     @Transactional
-    public CourseResponse createCourse(Long studentId, Long lectureId) {
+    public CourseResponse createTx(Long studentId, Long lectureId) {
+        Lecture lecture = lectureJpaRepository.findByIdWithOptimisticLock(lectureId)
+            .orElseThrow(() -> new BusinessException(LECTURE_NOT_FOUND));
+
         Student student = studentJpaRepository.findById(studentId)
-            .orElseThrow(() -> new BusinessException(CourseExceptionEnum.STUDENT_NOT_FOUND));
-        Lecture lecture = lectureJpaRepository.findById(lectureId)
-            .orElseThrow(() -> new BusinessException(CourseExceptionEnum.LECTURE_NOT_FOUND));
+            .orElseThrow(() -> new BusinessException(STUDENT_NOT_FOUND));
 
         CourseId courseId = CourseId.of(lecture, student);
 
