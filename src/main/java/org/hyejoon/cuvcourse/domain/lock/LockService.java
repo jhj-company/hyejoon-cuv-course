@@ -16,7 +16,6 @@ public class LockService {
 
     public void executeWithLock(String key, Runnable task) {
         RLock lock = redissonClient.getLock(key);
-        long startTime = System.currentTimeMillis();
 
         try {
             boolean acquireLock = lock.tryLock(1, 3, TimeUnit.SECONDS);
@@ -30,7 +29,9 @@ public class LockService {
         } catch (InterruptedException e) {
             throw new RuntimeException("락 대기 중 인터럽트 발생", e);
         } finally {
-            lock.unlock();
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
         }
     }
 
