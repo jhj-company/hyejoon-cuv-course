@@ -34,9 +34,7 @@ public class CourseRegistService {
         String lockKey = COURSE_REGIST_LOCK_KEY + lectureId;
 
         Course course = lockManager.executeWithLock(distributedLock, lockKey, () -> {
-            // 1. 중복 신청 검증을 락 내부로 이동하여 Race Condition 해결
             validator.validateDuplicateRegistration(courseId);
-            // 2. 수강 신청 처리
             return courseCreationService.createCourseIfAvailable(lecture, courseId);
         });
 
