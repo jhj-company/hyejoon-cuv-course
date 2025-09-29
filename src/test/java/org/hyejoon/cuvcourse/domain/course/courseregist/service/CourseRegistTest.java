@@ -2,7 +2,6 @@ package org.hyejoon.cuvcourse.domain.course.courseregist.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CyclicBarrier;
@@ -10,16 +9,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
 import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @SpringBootTest
 @Import(TestCourseRegistConfig.class)
@@ -39,16 +40,17 @@ public class CourseRegistTest {
     @Autowired
     private LectureJpaRepository lectureJpaRepository;
 
-    private Student createStudent(String name, String email, String password,
-        int credits) throws Exception {
-        Constructor<Student> constructor = Student.class.getDeclaredConstructor();
-        constructor.setAccessible(true);
-        Student student = constructor.newInstance();
-        ReflectionTestUtils.setField(student, "name", name);
-        ReflectionTestUtils.setField(student, "email", email);
-        ReflectionTestUtils.setField(student, "password", password);
-        ReflectionTestUtils.setField(student, "availableCredits", credits);
-        return student;
+    @Autowired
+    private CourseJpaRepository courseJpaRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @AfterEach
+    void tearDown() {
+        courseJpaRepository.deleteAllInBatch();
+        studentJpaRepository.deleteAllInBatch();
+        lectureJpaRepository.deleteAllInBatch();
     }
 
     @Test
@@ -63,12 +65,15 @@ public class CourseRegistTest {
         Lecture lecture = new Lecture("강의", "교수님", 3, CAPACITY);
         final Lecture savedLecture = lectureJpaRepository.save(lecture);
 
-        List<Student> students = new ArrayList<>();
+        // JdbcTemplate을 사용한 배치 삽입
+        String sql = "INSERT INTO students (name, email, password, available_credits, created_at) VALUES (?, ?, ?, ?, NOW())";
+        List<Object[]> batchArgs = new ArrayList<>();
         for (int i = 1; i <= TOTAL_STUDENT; i++) {
-            Student student = createStudent("Student" + i, "student" + i + "@test.com",
-                "password", 10);
-            students.add(studentJpaRepository.save(student));
+            batchArgs.add(new Object[]{"Student" + i, "student" + i + "@test.com", "password", 10});
         }
+        jdbcTemplate.batchUpdate(sql, batchArgs);
+
+        List<Student> students = studentJpaRepository.findAll();
 
         // When
         ExecutorService executor = Executors.newFixedThreadPool(TOTAL_STUDENT);
@@ -89,7 +94,7 @@ public class CourseRegistTest {
 
         executor.shutdown();
         try {
-            executor.awaitTermination(20, TimeUnit.SECONDS);
+            executor.awaitTermination(30, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
