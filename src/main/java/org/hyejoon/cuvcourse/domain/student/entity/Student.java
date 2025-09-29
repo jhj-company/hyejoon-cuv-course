@@ -1,5 +1,7 @@
 package org.hyejoon.cuvcourse.domain.student.entity;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import org.hyejoon.cuvcourse.global.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "students")
 public class Student extends BaseTimeEntity {
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -31,4 +33,11 @@ public class Student extends BaseTimeEntity {
 
     @Column(nullable = false)
     private int availableCredits = 0;
+
+    public Student(String name, String email, String password, int availableCredits) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.availableCredits = availableCredits;
+    }
 }

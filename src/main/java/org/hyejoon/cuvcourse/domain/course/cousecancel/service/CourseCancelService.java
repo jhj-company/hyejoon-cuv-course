@@ -5,6 +5,7 @@ import org.hyejoon.cuvcourse.domain.course.cousecancel.exception.CourseCancelExc
 import org.hyejoon.cuvcourse.domain.course.entity.Course;
 import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CourseCancelService {
 
     private final CourseJpaRepository courseJpaRepository;
+    private final StringRedisTemplate redisTemplate;
 
     @Transactional
     public void courseCancel(Long lectureId, Long studentId) {
@@ -20,5 +22,7 @@ public class CourseCancelService {
             .orElseThrow(() -> new BusinessException(CourseCancelExceptionEnum.COURSE_NOT_FOUND));
 
         courseJpaRepository.delete(course);
+
+        redisTemplate.opsForValue().decrement("lecture:" + lectureId + ":count");
     }
 }

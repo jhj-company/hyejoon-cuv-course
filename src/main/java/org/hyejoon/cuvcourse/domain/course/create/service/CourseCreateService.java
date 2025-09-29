@@ -1,7 +1,5 @@
 package org.hyejoon.cuvcourse.domain.course.create.service;
 
-import static org.hyejoon.cuvcourse.domain.course.exception.CourseExceptionEnum.ALREADY_REGISTERED;
-
 import lombok.RequiredArgsConstructor;
 import org.hyejoon.cuvcourse.domain.course.create.dto.CourseResponse;
 import org.hyejoon.cuvcourse.domain.course.entity.Course;
@@ -13,6 +11,7 @@ import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
+import org.hyejoon.cuvcourse.global.redis.LockService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,9 +22,11 @@ public class CourseCreateService {
     private final CourseJpaRepository courseJpaRepository;
     private final LectureJpaRepository lectureJpaRepository;
     private final StudentJpaRepository studentJpaRepository;
+    private final LockService lockService;
 
     @Transactional
     public CourseResponse createCourse(Long studentId, Long lectureId) {
+
         Student student = studentJpaRepository.findById(studentId)
             .orElseThrow(() -> new BusinessException(CourseExceptionEnum.STUDENT_NOT_FOUND));
         Lecture lecture = lectureJpaRepository.findById(lectureId)
@@ -35,13 +36,14 @@ public class CourseCreateService {
 
         // 중복 신청 금지
         if (courseJpaRepository.existsById(courseId)) {
-            throw new BusinessException(ALREADY_REGISTERED);
+            throw new BusinessException(CourseExceptionEnum.ALREADY_REGISTERED);
         }
 
         long currentHeadcount = courseJpaRepository.countByIdLecture(lecture);
 
         // 정원 초과 금지
-        if (currentHeadcount >= lecture.getCapacity()) {
+        boolean canRegister = lockService.tryAcquire("lecture:" + lectureId, lecture.getCapacity(), currentHeadcount);
+        if (!canRegister) {
             throw new BusinessException(CourseExceptionEnum.CAPACITY_FULL);
         }
 
