@@ -2,7 +2,11 @@ package org.hyejoon.cuvcourse.domain.lecture.entity;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+
+import org.hyejoon.cuvcourse.domain.course.courseregist.exception.CourseRegistExceptionEnum;
 import org.hyejoon.cuvcourse.global.entity.BaseTimeEntity;
+import org.hyejoon.cuvcourse.global.exception.BusinessException;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -43,5 +47,15 @@ public class Lecture extends BaseTimeEntity {
         this.professorName = professorName;
         this.credits = credits;
         this.capacity = capacity;
+    }
+
+    public void increaseTotal() {
+        this.total++;
+    }
+
+    public void validateCapacity() {
+        if (this.getTotal() >= this.getCapacity()) {
+            throw new BusinessException(CourseRegistExceptionEnum.CAPACITY_FULL);
+        }
     }
 }
