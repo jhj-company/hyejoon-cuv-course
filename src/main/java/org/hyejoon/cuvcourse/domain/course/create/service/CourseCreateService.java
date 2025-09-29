@@ -46,7 +46,7 @@ public class CourseCreateService {
                 throw new BusinessException(CourseExceptionEnum.ALREADY_REGISTERED);
             }
 
-            boolean canRegister = lockService.tryAcquire(lectureKey, lecture.getCapacity());
+            boolean canRegister = lockService.tryAcquire(lectureKey, lecture.getCapacity(), currentHeadcount);
             if (!canRegister) {
                 throw new BusinessException(CourseExceptionEnum.CAPACITY_FULL);
             }

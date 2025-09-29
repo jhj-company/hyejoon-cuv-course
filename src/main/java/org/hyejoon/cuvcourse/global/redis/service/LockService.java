@@ -20,11 +20,14 @@ public class LockService {
     private static final long LOCK_RETRY_DELAY_MS = 100L;
     private static final Duration LOCK_TTL = Duration.ofSeconds(5);
     private static final String LOCK_KEY_PREFIX = "lock:";
+    private static final String LOCK_COUNT_PREFIX = ":count";
 
-    public boolean tryAcquire(String lectureKey, long capacity) {
+    public boolean tryAcquire(String lectureKey, long capacity, long currentHeadcount) {
+        lockRepository.syncCountFromDb(LOCK_KEY_PREFIX + lectureKey + LOCK_COUNT_PREFIX ,currentHeadcount);
+
         Long result = lockRepository.executeScript(
             getLectureCounterScript(),
-            List.of(LOCK_KEY_PREFIX + lectureKey + ":count"),
+            List.of(LOCK_KEY_PREFIX + lectureKey + LOCK_COUNT_PREFIX),
             String.valueOf(capacity)
         );
 

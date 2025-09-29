@@ -30,4 +30,8 @@ public class LockRepository {
     public void decrement(String key) {
         redisTemplate.opsForValue().decrement(key);
     }
+
+    public void syncCountFromDb(String lectureKey, long currentHeadcount) {
+        redisTemplate.opsForValue().setIfAbsent(lectureKey, String.valueOf(currentHeadcount));
+    }
 }
