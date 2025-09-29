@@ -6,10 +6,12 @@ import org.hyejoon.cuvcourse.domain.course.courseregist.exception.CourseRegistEx
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
+@Primary
 @Component
 @RequiredArgsConstructor
 public class RedissonLock implements DistributedLock {
