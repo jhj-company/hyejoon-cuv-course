@@ -1,5 +1,7 @@
 package org.hyejoon.cuvcourse.domain.course.courseregist.service.lock;
 
+import java.util.Random;
+
 import org.hyejoon.cuvcourse.domain.course.courseregist.dto.CourseResponse;
 import org.hyejoon.cuvcourse.domain.course.courseregist.service.CourseCreationService;
 import org.hyejoon.cuvcourse.domain.course.courseregist.service.CourseRegistUseCase;
@@ -36,6 +38,8 @@ public abstract class AbstractCourseRegistService implements CourseRegistUseCase
 
         String lockKey = COURSE_REGIST_LOCK_KEY + lectureId;
 
+        // 테스트 환경에서 동시성 시뮬레이션을 위함
+        // Prod에서 빼야함!!!
         simulateDelay();
 
         Course course = lockManager.executeWithLock(distributedLock, lockKey,
@@ -50,7 +54,8 @@ public abstract class AbstractCourseRegistService implements CourseRegistUseCase
 
     private void simulateDelay() {
         try {
-            Thread.sleep(100); // 100ms 정도의 지연을 주어 실제 운영 환경처럼 처리함
+            int delay = 50 + new Random().nextInt(51); // 50~100ms 랜덤 지연
+            Thread.sleep(delay);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
