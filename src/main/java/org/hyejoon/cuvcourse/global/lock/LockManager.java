@@ -42,7 +42,7 @@ public class LockManager {
                 throw e;
             } catch (Exception e) {
                 log.warn("Exception occured: {}", e.getMessage());
-                throw new BusinessException(GlobalExceptionEnum.LOCK_ACQUIRE_FAILED);
+                throw new RuntimeException("Lock Acquire Failed", e);
             } finally {
                 distributedLock.releaseLock(key);
             }
