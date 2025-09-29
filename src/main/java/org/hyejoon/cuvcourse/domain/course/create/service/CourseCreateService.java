@@ -13,6 +13,7 @@ import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
+import org.hyejoon.cuvcourse.global.lock.DistributedLock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,14 +22,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class CourseCreateService {
 
     private final CourseJpaRepository courseJpaRepository;
-    private final LectureJpaRepository lectureJpaRepository;
     private final StudentJpaRepository studentJpaRepository;
+    private final LectureJpaRepository lectureJpaRepository;
 
+    @DistributedLock(key = "'lecture:' + #lectureId")
     @Transactional
     public CourseResponse createCourse(Long studentId, Long lectureId) {
         Student student = studentJpaRepository.findById(studentId)
             .orElseThrow(() -> new BusinessException(CourseExceptionEnum.STUDENT_NOT_FOUND));
-        Lecture lecture = lectureJpaRepository.findById(lectureId)
+
+        // --- lectureJpaRepository를 사용하여 잠금 메소드 호출 ---
+        Lecture lecture = lectureJpaRepository.findByIdWithPessimisticLock(lectureId)
             .orElseThrow(() -> new BusinessException(CourseExceptionEnum.LECTURE_NOT_FOUND));
 
         CourseId courseId = CourseId.of(lecture, student);
@@ -38,7 +42,7 @@ public class CourseCreateService {
             throw new BusinessException(ALREADY_REGISTERED);
         }
 
-        long currentHeadcount = courseJpaRepository.countByIdLecture(lecture);
+        long currentHeadcount = courseJpaRepository.countByIdLectureId(lecture.getId());
 
         // 정원 초과 금지
         if (currentHeadcount >= lecture.getCapacity()) {

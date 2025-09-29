@@ -1,0 +1,35 @@
+# src/test/resources/application.yml
+
+spring:
+  # === 테스트 환경에서는 H2 인메모리 DB를 사용하도록 설정 ===
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL # H2를 MySQL 모드로 실행
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop # 테스트 시작 시 테이블 생성, 종료 시 삭제
+    properties:
+      hibernate:
+        format_sql: true # SQL 쿼리를 예쁘게 출력
+    defer-datasource-initialization: true
+
+  # === Flyway는 테스트에서 비활성화 (H2가 자동으로 테이블을 만들기 때문) ===
+  flyway:
+    enabled: false
+
+  # ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ 이 부분을 추가해주세요 ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+  # === 테스트용 Redis 설정 (로컬 Redis 사용) ===
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  # ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug # 실행되는 SQL 쿼리 로그 출력

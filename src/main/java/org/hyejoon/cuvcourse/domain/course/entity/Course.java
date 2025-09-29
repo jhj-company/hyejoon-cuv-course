@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hyejoon.cuvcourse.global.entity.BaseTimeEntity;
@@ -13,6 +14,7 @@ import org.hyejoon.cuvcourse.global.entity.BaseTimeEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Builder
 @Table(name = "courses")
 public class Course extends BaseTimeEntity {
 

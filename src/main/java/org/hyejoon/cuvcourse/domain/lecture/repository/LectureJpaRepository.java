@@ -1,8 +1,18 @@
 package org.hyejoon.cuvcourse.domain.lecture.repository;
 
+import jakarta.persistence.LockModeType;
+import java.util.Optional;
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-public interface LectureJpaRepository extends JpaRepository<Lecture, Long>, LectureRepositoryCustom {
+public interface LectureJpaRepository extends JpaRepository<Lecture, Long>,
+    LectureRepositoryCustom {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select l from Lecture l where l.id = :id")
+    Optional<Lecture> findByIdWithPessimisticLock(@Param("id") Long id);
 
 }
