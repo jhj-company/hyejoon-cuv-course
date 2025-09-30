@@ -57,6 +57,10 @@ public class Lecture extends BaseTimeEntity {
         this.total++;
     }
 
+    public void deceaseTotal() {
+        this.total--;
+    }
+
     public void validateCapacity() {
         if (this.total >= this.capacity) {
             throw new BusinessException(CourseRegistExceptionEnum.CAPACITY_FULL);

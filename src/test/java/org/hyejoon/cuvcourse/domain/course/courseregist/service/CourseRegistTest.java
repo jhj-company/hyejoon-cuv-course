@@ -107,7 +107,7 @@ public class CourseRegistTest {
             executor.submit(() -> {
                 try {
                     barrier.await();  // 모든 스레드가 동시에 시작하도록 기다림
-                    courseRegistWithoutCacheService
+                    courseRegistService
                         .registerCourse(student.getId(), savedLecture.getId());
                     successCount.incrementAndGet();
                 } catch (Exception ex) {
