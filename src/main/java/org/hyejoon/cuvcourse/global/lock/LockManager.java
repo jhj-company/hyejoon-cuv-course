@@ -1,13 +1,13 @@
 package org.hyejoon.cuvcourse.global.lock;
 
 import java.util.concurrent.Callable;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.hyejoon.cuvcourse.global.exception.GlobalExceptionEnum;
 import org.springframework.stereotype.Component;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @Component
@@ -35,19 +35,35 @@ public class LockManager {
             attempts++;
         }
 
-        if (acquired) {
-            try {
-                return callable.call();
-            } catch (RuntimeException e) {
-                throw e;
-            } catch (Exception e) {
-                log.warn("Exception occured: {}", e.getMessage());
-                throw new RuntimeException("Lock Acquire Failed", e);
-            } finally {
+        if (!acquired) {
+            throw new BusinessException(GlobalExceptionEnum.LOCK_ACQUIRE_FAILED);
+        }
+
+        // 트랜잭션이 활성화된 경우
+        // 트랜잭션 종료 시점과 락 해제 시점을 맞춰주기 위해 Callback을 등록
+        boolean syncActive = TransactionSynchronizationManager.isActualTransactionActive();
+        if (syncActive) {
+            TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCompletion(int status) {
+                        distributedLock.releaseLock(key);
+                    }
+                });
+        }
+
+        try {
+            return callable.call();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            log.warn("Exception occured: {}", e.getMessage());
+            throw new RuntimeException("Lock Acquire Failed", e);
+        } finally {
+            // 트랜잭션이 비활성화된 경우 즉시 락 해제
+            if (!syncActive) {
                 distributedLock.releaseLock(key);
             }
-        } else {
-            throw new BusinessException(GlobalExceptionEnum.LOCK_ACQUIRE_FAILED);
         }
     }
 

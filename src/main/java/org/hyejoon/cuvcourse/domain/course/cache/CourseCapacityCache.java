@@ -105,7 +105,6 @@ public class CourseCapacityCache {
         RELEASE_SCRIPT = releaseScript;
     }
 
-    // TODO: Qualifier 필요없는지
     private final RedisTemplate<String, Long> courseCapacityRedisTemplate;
     private final CourseJpaRepository courseJpaRepository;
     private final LectureJpaRepository lectureJpaRepository;
