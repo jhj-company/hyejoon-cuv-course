@@ -31,12 +31,16 @@ public class CourseRegistService {
         Student student = studentJpaRepository.findById(studentId)
             .orElseThrow(() -> new BusinessException(
                 CourseRegistExceptionEnum.STUDENT_NOT_FOUND));
-        String lockKey = COURSE_REGIST_LOCK_KEY + lectureId;
+        String lockKey = generateLockKey(lectureId);
 
         Course course = lockManager.executeWithLock(distributedLock, lockKey,
             () -> courseCreationService.registerCourseIfAvailable(lectureId, student)
         );
 
         return CourseResponse.from(course);
+    }
+
+    private String generateLockKey(long lectureId) {
+        return COURSE_REGIST_LOCK_KEY + lectureId;
     }
 }

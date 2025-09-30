@@ -31,6 +31,7 @@ public class CourseCreationWithoutCacheService {
 
         CourseId courseId = CourseId.of(lecture, student);
 
+        // 중복 신청 금지
         if (courseJpaRepository.existsById(courseId)) {
             throw new BusinessException(CourseRegistExceptionEnum.ALREADY_REGISTERED);
         }
