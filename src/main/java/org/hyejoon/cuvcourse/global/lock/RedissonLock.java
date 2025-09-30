@@ -1,7 +1,7 @@
 package org.hyejoon.cuvcourse.global.lock;
 
 import java.util.concurrent.TimeUnit;
-
+import lombok.RequiredArgsConstructor;
 import org.hyejoon.cuvcourse.domain.course.courseregist.exception.CourseRegistExceptionEnum;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.redisson.api.RLock;
@@ -9,15 +9,13 @@ import org.redisson.api.RedissonClient;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import lombok.RequiredArgsConstructor;
-
 @Primary
 @Component
 @RequiredArgsConstructor
 public class RedissonLock implements DistributedLock {
 
-    private static final int LOCK_LEASE_SECONDS = 3;
-    private static final int LOCK_MAX_WAIT_SECONDS = 3;
+    private static final int LOCK_LEASE_SECONDS = 10;
+    private static final int LOCK_MAX_WAIT_SECONDS = 120;
 
     private final RedissonClient redissonClient;
 

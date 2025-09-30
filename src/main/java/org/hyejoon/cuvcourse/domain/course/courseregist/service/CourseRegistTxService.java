@@ -26,6 +26,11 @@ public class CourseRegistTxService {
     private final CourseCapacityTransactionalFacade courseCapacityTransactionalFacade;
 
     @Transactional
+    public Course createCourseWithoutCache(Lecture lecture, CourseId courseId) {
+        return createWithDbFallback(lecture, courseId, null);
+    }
+
+    @Transactional
     public Course createCourseIfAvailable(Lecture lecture, CourseId courseId) {
         try {
             return createWithCache(lecture, courseId);
