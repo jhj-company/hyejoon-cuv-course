@@ -26,7 +26,16 @@ public class CourseCancelTxService {
         Course course = courseJpaRepository.findByLectureAndStudent(lectureId, studentId)
             .orElseThrow(() -> new BusinessException(CourseCancelExceptionEnum.COURSE_NOT_FOUND));
 
-        courseCapacityCache.getOrInit(lectureId);
+        try {
+            // 캐시 초기화 용도이므로 실패해도 진행
+            courseCapacityCache.getOrInit(lectureId);
+        } catch (CourseCapacityCacheException ex) {
+            log.warn(
+                "Redis 정원 캐시 조회에 실패했으나 DB 기준으로 취소를 계속 진행합니다. lectureId={}",
+                lectureId,
+                ex
+            );
+        }
 
         courseJpaRepository.delete(course);
 

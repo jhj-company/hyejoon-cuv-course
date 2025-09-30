@@ -27,6 +27,14 @@ public class CourseRegistTxService {
 
     @Transactional
     public Course createCourseIfAvailable(Lecture lecture, CourseId courseId) {
+        try {
+            return createWithCache(lecture, courseId);
+        } catch (CourseCapacityCacheException cacheException) {
+            return createWithDbFallback(lecture, courseId, cacheException);
+        }
+    }
+
+    private Course createWithCache(Lecture lecture, CourseId courseId) {
         long lectureId = lecture.getId();
 
         // 캐시에서 현재 정원 및 신청 인원을 조회해 빠르게 수강신청 가능 여부를 확인한다.
@@ -75,7 +83,33 @@ public class CourseRegistTxService {
         try {
             courseCapacityCache.release(lectureId);
         } catch (CourseCapacityCacheException ex) {
-            log.error("트랜잭션 롤백 후 Redis 롤백에 실패했습니다. lectureId={}", lectureId, ex);
+            log.error(
+                "트랜잭션 롤백 후 Redis 롤백에 실패했습니다. lectureId={}",
+                lectureId,
+                ex
+            );
         }
+    }
+
+    private Course createWithDbFallback(
+        Lecture lecture,
+        CourseId courseId,
+        CourseCapacityCacheException cause
+    ) {
+        long lectureId = lecture.getId();
+
+        log.warn(
+            "Redis 수강 신청 정보 캐시 접근 실패로 DB 폴백을 수행합니다. lectureId={}",
+            lectureId,
+            cause
+        );
+
+        long currentCount = courseJpaRepository.countByIdLecture(lecture);
+        if (currentCount >= lecture.getCapacity()) {
+            throw new BusinessException(CourseRegistExceptionEnum.CAPACITY_FULL);
+        }
+
+        Course course = Course.from(courseId);
+        return courseJpaRepository.save(course);
     }
 }

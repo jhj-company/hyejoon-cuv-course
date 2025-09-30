@@ -3,9 +3,11 @@ package org.hyejoon.cuvcourse.domain.course.cache;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hyejoon.cuvcourse.domain.course.courseregist.exception.CourseRegistExceptionEnum;
 import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
 import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
+import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
@@ -22,12 +24,6 @@ public class CourseCapacityCache {
 
     private static final String HEADCOUNT_KEY_PATTERN = "course:lecture:%d:headcount";
     private static final String CAPACITY_KEY_PATTERN = "course:lecture:%d:capacity";
-    // 동기화 메타데이터(상태 등)을 저장할 키 패턴
-    // status: ok, pending, error 중 1개
-    // lastSyncAt: 마지막 동기화 시각
-    // lastSyncBy: 마지막 동기화를 시도한 주체
-    // errorCode: status가 error일 때의 에러 코드
-    private static final String SYNC_KEY_PATTERN = "course:lecture:%d:sync";
 
     // Lua 스크립트 반환 코드
     private static final int SCRIPT_RESERVED = 1; // 예약 성공
@@ -117,11 +113,6 @@ public class CourseCapacityCache {
         return CAPACITY_KEY_PATTERN.formatted(lectureId);
     }
 
-    @SuppressWarnings("unused")
-    private static String formatSyncKey(long lectureId) {
-        return SYNC_KEY_PATTERN.formatted(lectureId);
-    }
-
     /**
      * 캐시에서 정원/신청 인원 조회, 없으면 DB에서 조회 후 캐시 초기화 ({@code Cache-aside})
      *
@@ -141,9 +132,7 @@ public class CourseCapacityCache {
         }
 
         Lecture lecture = lectureJpaRepository.findById(lectureId)
-            .orElseThrow(() -> new CourseCapacityCacheException(
-                "캐시 초기화를 위한 강의 정보를 찾을 수 없습니다. lecture=" + lectureId
-            ));
+            .orElseThrow(() -> new BusinessException(CourseRegistExceptionEnum.LECTURE_NOT_FOUND));
 
         long capacityFromDb = lecture.getCapacity();
         long headcountFromDb = courseJpaRepository.countByIdLecture(lecture);
