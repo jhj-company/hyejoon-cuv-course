@@ -15,52 +15,52 @@ public class TestCourseRegistConfig {
     @Bean
     @Qualifier("courseRegistRedissonService")
     public CourseRegistService redissonCourseRegistService(
-        CourseCreationService courseCreationService,
+        CourseRegistTxService courseRegistTxService,
         LockManager lockManager,
         @Qualifier("redissonLock") DistributedLock redissonLock,
         CourseJpaRepository courseJpaRepository,
         LectureJpaRepository lectureJpaRepository,
         StudentJpaRepository studentJpaRepository) {
-        return new CourseRegistService(courseCreationService, lockManager, redissonLock,
+        return new CourseRegistService(courseRegistTxService, lockManager, redissonLock,
             courseJpaRepository, lectureJpaRepository, studentJpaRepository);
     }
 
     @Bean
     @Qualifier("courseRegistPubSubLockService")
     public CourseRegistService pubSubCourseRegistService(
-        CourseCreationService courseCreationService,
+        CourseRegistTxService courseRegistTxService,
         LockManager lockManager,
         @Qualifier("pubSubLock") DistributedLock pubSubLock,
         CourseJpaRepository courseJpaRepository,
         LectureJpaRepository lectureJpaRepository,
         StudentJpaRepository studentJpaRepository) {
-        return new CourseRegistService(courseCreationService, lockManager, pubSubLock,
+        return new CourseRegistService(courseRegistTxService, lockManager, pubSubLock,
             courseJpaRepository, lectureJpaRepository, studentJpaRepository);
     }
 
     @Bean
     @Qualifier("courseRegistSpinLockService")
     public CourseRegistService spinCourseRegistService(
-        CourseCreationService courseCreationService,
+        CourseRegistTxService courseRegistTxService,
         LockManager lockManager,
         @Qualifier("spinLock") DistributedLock spinLock,
         CourseJpaRepository courseJpaRepository,
         LectureJpaRepository lectureJpaRepository,
         StudentJpaRepository studentJpaRepository) {
-        return new CourseRegistService(courseCreationService, lockManager, spinLock,
+        return new CourseRegistService(courseRegistTxService, lockManager, spinLock,
             courseJpaRepository, lectureJpaRepository, studentJpaRepository);
     }
 
     @Bean
     @Qualifier("courseRegistNoLockService")
     public CourseRegistService noLockCourseRegistService(
-        CourseCreationService courseCreationService,
+        CourseRegistTxService courseRegistTxService,
         LockManager lockManager,
         @Qualifier("noLock") DistributedLock noLock,
         CourseJpaRepository courseJpaRepository,
         LectureJpaRepository lectureJpaRepository,
         StudentJpaRepository studentJpaRepository) {
-        return new CourseRegistService(courseCreationService, lockManager, noLock,
+        return new CourseRegistService(courseRegistTxService, lockManager, noLock,
             courseJpaRepository, lectureJpaRepository, studentJpaRepository);
     }
 }

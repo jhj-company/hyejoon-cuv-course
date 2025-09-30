@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CourseCreationService {
+public class CourseRegistTxService {
 
     private final CourseJpaRepository courseJpaRepository;
     private final CourseCapacityCache courseCapacityCache;

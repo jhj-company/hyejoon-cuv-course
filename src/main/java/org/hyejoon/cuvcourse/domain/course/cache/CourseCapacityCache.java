@@ -123,7 +123,7 @@ public class CourseCapacityCache {
     }
 
     /**
-     * 캐시에서 정원/신청 인원 조회, 없으면 DB에서 조회 후 캐시 초기화
+     * 캐시에서 정원/신청 인원 조회, 없으면 DB에서 조회 후 캐시 초기화 ({@code Cache-aside})
      *
      * @param lectureId 강의 ID
      * @return 정원/신청 인원 스냅샷

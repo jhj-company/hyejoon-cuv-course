@@ -1,9 +1,12 @@
 package org.hyejoon.cuvcourse.domain.course.courseregist.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hyejoon.cuvcourse.domain.course.courseregist.dto.CourseResponse;
 import org.hyejoon.cuvcourse.domain.course.courseregist.exception.CourseRegistExceptionEnum;
 import org.hyejoon.cuvcourse.domain.course.entity.Course;
 import org.hyejoon.cuvcourse.domain.course.entity.CourseId;
+import org.hyejoon.cuvcourse.domain.course.enums.CourseLockPrefixEnum;
 import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
 import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
@@ -14,17 +17,12 @@ import org.hyejoon.cuvcourse.global.lock.DistributedLock;
 import org.hyejoon.cuvcourse.global.lock.LockManager;
 import org.springframework.stereotype.Service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CourseRegistService {
 
-    private static final String COURSE_REGIST_LOCK_KEY = "course-service:regist-lock:";
-
-    private final CourseCreationService courseCreationService;
+    private final CourseRegistTxService courseRegistTxService;
     private final LockManager lockManager;
     private final DistributedLock distributedLock;
     private final CourseJpaRepository courseJpaRepository;
@@ -40,13 +38,13 @@ public class CourseRegistService {
             .orElseThrow(() -> new BusinessException(CourseRegistExceptionEnum.LECTURE_NOT_FOUND));
         CourseId courseId = CourseId.of(lecture, student);
 
-        String lockKey = COURSE_REGIST_LOCK_KEY + lectureId;
+        String lockKey = CourseLockPrefixEnum.COURSE_LOCK.getPrefix() + lectureId;
 
         Course course = lockManager.executeWithLock(distributedLock, lockKey, () -> {
             if (courseJpaRepository.existsById(courseId)) {
                 throw new BusinessException(CourseRegistExceptionEnum.ALREADY_REGISTERED);
             }
-            return courseCreationService.createCourseIfAvailable(lecture, courseId);
+            return courseRegistTxService.createCourseIfAvailable(lecture, courseId);
         });
 
         return CourseResponse.from(course);
