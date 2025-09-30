@@ -3,7 +3,6 @@ package org.hyejoon.cuvcourse.global.config;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +17,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 @EnableCaching
-@RequiredArgsConstructor
 public class RedisCacheConfig {
 
     private static final Duration LECTURE_TOTAL_TTL = Duration.ofMinutes(30L);
