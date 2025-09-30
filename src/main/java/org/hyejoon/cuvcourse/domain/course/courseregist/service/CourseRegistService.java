@@ -34,7 +34,7 @@ public class CourseRegistService {
         String lockKey = COURSE_REGIST_LOCK_KEY + lectureId;
 
         Course course = lockManager.executeWithLock(distributedLock, lockKey,
-            () -> courseCreationService.createCourseIfAvailable(lectureId, student)
+            () -> courseCreationService.registerCourseIfAvailable(lectureId, student)
         );
 
         return CourseResponse.from(course);

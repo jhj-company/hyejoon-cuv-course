@@ -22,7 +22,7 @@ public class CourseCreationWithoutCacheService {
     private final LectureJpaRepository lectureJpaRepository;
 
     @Transactional
-    public Course createCourseIfAvailable(long lectureId, Student student) {
+    public Course registerCourseIfAvailable(long lectureId, Student student) {
         Lecture lecture = lectureJpaRepository.findById(lectureId)
             .orElseThrow(() -> new BusinessException(LectureExceptionEnum.LECTURE_NOT_FOUND));
 

@@ -21,7 +21,7 @@ public class CourseCreationService {
     private final LectureCacheService lectureCacheService;
 
     @Transactional
-    public Course createCourseIfAvailable(long lectureId, Student student) {
+    public Course registerCourseIfAvailable(long lectureId, Student student) {
         Lecture lecture = lectureCacheService.getLectureById(lectureId);
 
         // 정원 초과 금지
