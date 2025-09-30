@@ -1,0 +1,2 @@
+ALTER TABLE lectures
+    ADD COLUMN total INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '현재 수강 인원';
