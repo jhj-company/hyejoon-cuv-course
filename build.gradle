@@ -45,10 +45,12 @@ dependencies {
 	// Lombok
 	annotationProcessor 'org.projectlombok:lombok'
 	compileOnly 'org.projectlombok:lombok'
+	testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
 	// Databases
-	runtimeOnly 'com.h2database:h2'
-	runtimeOnly 'com.mysql:mysql-connector-j'
+	implementation 'com.h2database:h2'
+	implementation 'com.mysql:mysql-connector-j'
 
 	// QueryDsl
 	annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'

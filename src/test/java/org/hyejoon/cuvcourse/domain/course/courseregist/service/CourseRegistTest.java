@@ -2,33 +2,37 @@ package org.hyejoon.cuvcourse.domain.course.courseregist.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
+import org.hyejoon.cuvcourse.domain.lecture.cache.LectureCacheService;
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
 import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
-import org.hyejoon.cuvcourse.global.config.RedisCacheConfig;
-import org.hyejoon.cuvcourse.global.config.RedisConfig;
-import org.hyejoon.cuvcourse.global.config.RedisLockConfig;
-import org.hyejoon.cuvcourse.global.config.RedissonConfig;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @SpringBootTest
-@Import({TestCourseRegistConfig.class, RedisConfig.class, RedisLockConfig.class,
-    RedisCacheConfig.class, RedissonConfig.class})
+@Import({TestCourseRegistConfig.class})
 public class CourseRegistTest {
 
     @Autowired
@@ -38,6 +42,10 @@ public class CourseRegistTest {
     // courseRegistRedissonService - 성공
     @Qualifier("courseRegistRedissonService")
     private CourseRegistService courseRegistService;
+
+    // 캐시 미사용
+    @Autowired
+    private CourseRegistWithoutCacheService courseRegistWithoutCacheService;
 
     @Autowired
     private StudentJpaRepository studentJpaRepository;
@@ -49,7 +57,16 @@ public class CourseRegistTest {
     private CourseJpaRepository courseJpaRepository;
 
     @Autowired
+    private CacheManager cacheManager;
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @BeforeEach
+    void setUp() {
+        Optional.of(cacheManager.getCache(LectureCacheService.LECTURE_CACHE_VALUE))
+            .ifPresent(c -> c.clear());
+    }
 
     @AfterEach
     void tearDown() {
@@ -85,13 +102,17 @@ public class CourseRegistTest {
         AtomicInteger successCount = new AtomicInteger(0);
         CyclicBarrier barrier = new CyclicBarrier(TOTAL_STUDENT);
 
+        Instant startTime = Instant.now();
         for (Student student : students) {
             executor.submit(() -> {
                 try {
                     barrier.await();  // 모든 스레드가 동시에 시작하도록 기다림
-                    courseRegistService.registerCourse(student.getId(), savedLecture.getId());
+                    courseRegistWithoutCacheService
+                        .registerCourse(student.getId(), savedLecture.getId());
                     successCount.incrementAndGet();
-                } catch (Exception ignored) {
+                } catch (Exception ex) {
+                    log.info("Exception occured: {}", ex.getMessage());
+                    log.info("From: {}", ex.getCause().getMessage());
                 }
             });
         }
@@ -102,6 +123,10 @@ public class CourseRegistTest {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+        Instant endTime = Instant.now();
+
+        long duration = Duration.between(startTime, endTime).toMillis();
+        log.info("수강신청 테스트 소요시간: {} ms", duration);
 
         // Then
         int actualSuccessCount = successCount.get();

@@ -1,7 +1,5 @@
 package org.hyejoon.cuvcourse.domain.course.courseregist.service;
 
-import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
-import org.hyejoon.cuvcourse.domain.lecture.cache.LectureCacheService;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
 import org.hyejoon.cuvcourse.global.lock.DistributedLock;
 import org.hyejoon.cuvcourse.global.lock.LockManager;
@@ -18,11 +16,9 @@ public class TestCourseRegistConfig {
         CourseCreationService courseCreationService,
         LockManager lockManager,
         @Qualifier("redissonLock") DistributedLock redissonLock,
-        CourseJpaRepository courseJpaRepository,
-        LectureCacheService lectureCacheService,
         StudentJpaRepository studentJpaRepository) {
         return new CourseRegistService(courseCreationService, lockManager, redissonLock,
-            courseJpaRepository, lectureCacheService, studentJpaRepository);
+            studentJpaRepository);
     }
 
     @Bean
@@ -31,11 +27,9 @@ public class TestCourseRegistConfig {
         CourseCreationService courseCreationService,
         LockManager lockManager,
         @Qualifier("pubSubLock") DistributedLock pubSubLock,
-        CourseJpaRepository courseJpaRepository,
-        LectureCacheService lectureCacheService,
         StudentJpaRepository studentJpaRepository) {
         return new CourseRegistService(courseCreationService, lockManager, pubSubLock,
-            courseJpaRepository, lectureCacheService, studentJpaRepository);
+            studentJpaRepository);
     }
 
     @Bean
@@ -44,11 +38,9 @@ public class TestCourseRegistConfig {
         CourseCreationService courseCreationService,
         LockManager lockManager,
         @Qualifier("spinLock") DistributedLock spinLock,
-        CourseJpaRepository courseJpaRepository,
-        LectureCacheService lectureCacheService,
         StudentJpaRepository studentJpaRepository) {
         return new CourseRegistService(courseCreationService, lockManager, spinLock,
-            courseJpaRepository, lectureCacheService, studentJpaRepository);
+            studentJpaRepository);
     }
 
     @Bean
@@ -57,10 +49,8 @@ public class TestCourseRegistConfig {
         CourseCreationService courseCreationService,
         LockManager lockManager,
         @Qualifier("noLock") DistributedLock noLock,
-        CourseJpaRepository courseJpaRepository,
-        LectureCacheService lectureCacheService,
         StudentJpaRepository studentJpaRepository) {
         return new CourseRegistService(courseCreationService, lockManager, noLock,
-            courseJpaRepository, lectureCacheService, studentJpaRepository);
+            studentJpaRepository);
     }
 }
