@@ -65,7 +65,7 @@ services:
     container_name: mysqld_exporter
     command:
       - "--mysqld.username=root:1234"
-      - "--mysqld.address=hjcuv-mysql:3306"
+      - "--mysqld.address=hjcuv-mysql-dev:3306"
     ports:
       - "9104:9104"
     depends_on:
