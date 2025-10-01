@@ -50,6 +50,7 @@ services:
       - "3308:3306"
     volumes:
       - mysql_dev_data:/var/lib/mysql
+      - ./src/test/resources/dev_db_init.sql:/docker-entrypoint-initdb.d/dev_db_init.sql
 
   redis-lock:
     image: redis:7.4
@@ -69,8 +70,24 @@ services:
     volumes:
       - redis_cache_data:/data
 
+  elastic-search:
+    image: elasticsearch:9.1.4
+    container_name: hjcuv-elasticsearch
+    environment:
+      # 단일 노드로 실행합니다.
+      - discovery.type=single-node
+      # 보안 기능을 꺼서, ID/PW 없이 바로 API를 호출할 수 있게 합니다.
+      - xpack.security.enabled=false
+      # JVM 힙 메모리를 2GB로 고정합니다. (내 PC의 리소스를 과도하게 쓰지 않도록)
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
 volumes:
   mysql_data:
   redis_lock_data:
   redis_cache_data:
   mysql_dev_data:
+  es_data:
