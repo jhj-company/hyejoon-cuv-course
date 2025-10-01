@@ -21,8 +21,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @Import(TestCourseRegistConfig.class)
 public class CourseRegistTest {
 
@@ -58,9 +60,9 @@ public class CourseRegistTest {
         // Given
 
         // 강의 정원
-        final int CAPACITY = 30;
+        final int CAPACITY = 100;
         // 해당 강의를 신청하는 학생 수
-        final int TOTAL_STUDENT = 150;
+        final int TOTAL_STUDENT = 300;
 
         Lecture lecture = new Lecture("강의", "교수님", 3, CAPACITY);
         final Lecture savedLecture = lectureJpaRepository.save(lecture);
@@ -80,6 +82,8 @@ public class CourseRegistTest {
         AtomicInteger successCount = new AtomicInteger(0);
         CyclicBarrier barrier = new CyclicBarrier(TOTAL_STUDENT);
 
+        long startTime = System.currentTimeMillis();
+
         for (Student student : students) {
             executor.submit(() -> {
                 try {
@@ -98,6 +102,9 @@ public class CourseRegistTest {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+
+        long totalDuration = System.currentTimeMillis() - startTime;
+        System.out.println("총 수강신청 처리 시간: " + totalDuration + "ms");
 
         // Then
         int actualSuccessCount = successCount.get();
