@@ -37,4 +37,10 @@ public class LectureCacheService {
         lecture.deceaseTotal();
         return lecture;
     }
+
+    @Transactional(readOnly = true)
+    @CachePut(value = LECTURE_CACHE_VALUE, key = "#lectureId")
+    public Lecture rollbackCacheFrom(long lectureId) {
+        return lectureJpaRepository.findById(lectureId).get();
+    }
 }

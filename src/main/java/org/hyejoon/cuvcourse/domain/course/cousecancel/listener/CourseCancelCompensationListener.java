@@ -1,6 +1,6 @@
-package org.hyejoon.cuvcourse.domain.course.courseregist.listener;
+package org.hyejoon.cuvcourse.domain.course.cousecancel.listener;
 
-import org.hyejoon.cuvcourse.domain.course.courseregist.event.CourseRegistCompensationEvent;
+import org.hyejoon.cuvcourse.domain.course.cousecancel.event.CourseCancelCompensationEvent;
 import org.hyejoon.cuvcourse.domain.lecture.cache.LectureCacheService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -12,13 +12,13 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class CourseRegistCompensationListener {
+public class CourseCancelCompensationListener {
 
     private final LectureCacheService lectureCacheService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
-    public void courseRegistFailed(CourseRegistCompensationEvent event) {
+    public void courseRegistFailed(CourseCancelCompensationEvent event) {
         lectureCacheService.rollbackCacheFrom(event.lectureId());
     }
 }

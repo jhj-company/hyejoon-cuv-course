@@ -7,6 +7,7 @@ import org.hyejoon.cuvcourse.domain.course.entity.CourseId;
 import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
 import org.hyejoon.cuvcourse.domain.lecture.cache.LectureCacheService;
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
+import org.hyejoon.cuvcourse.domain.lecture.event.LectureUpdatedEvent;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.springframework.context.ApplicationEventPublisher;
@@ -42,7 +43,8 @@ public class CourseCreationService {
         Course course = Course.from(courseId);
         Course savedCourse = courseJpaRepository.save(course);
         lectureCacheService.increaseLectureTotal(lecture);
-        eventPublisher.publishEvent(new CourseRegistCompensationEvent(lecture));
+        eventPublisher.publishEvent(new CourseRegistCompensationEvent(lectureId));
+        eventPublisher.publishEvent(new LectureUpdatedEvent(lectureId));
         return savedCourse;
     }
 }

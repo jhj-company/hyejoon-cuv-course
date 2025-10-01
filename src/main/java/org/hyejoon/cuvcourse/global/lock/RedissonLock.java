@@ -16,8 +16,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RedissonLock implements DistributedLock {
 
-    private static final int LOCK_LEASE_SECONDS = 3;
-    private static final int LOCK_MAX_WAIT_SECONDS = 3;
+    private static final int LOCK_LEASE_SECONDS = 10;
+    private static final int LOCK_MAX_WAIT_SECONDS = 120;
 
     private final RedissonClient redissonClient;
 

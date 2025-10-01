@@ -80,9 +80,9 @@ public class CourseRegistTest {
         // Given
 
         // 강의 정원
-        final int CAPACITY = 30;
+        final int CAPACITY = 500;
         // 해당 강의를 신청하는 학생 수
-        final int TOTAL_STUDENT = 150;
+        final int TOTAL_STUDENT = 1000;
 
         Lecture lecture = new Lecture("강의", "교수님", 3, CAPACITY, 0);
         final Lecture savedLecture = lectureJpaRepository.save(lecture);
@@ -107,7 +107,7 @@ public class CourseRegistTest {
             executor.submit(() -> {
                 try {
                     barrier.await();  // 모든 스레드가 동시에 시작하도록 기다림
-                    courseRegistService
+                    courseRegistWithoutCacheService
                         .registerCourse(student.getId(), savedLecture.getId());
                     successCount.incrementAndGet();
                 } catch (Exception ex) {
