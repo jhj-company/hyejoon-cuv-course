@@ -70,8 +70,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.integration:spring-integration-redis'
     implementation 'org.redisson:redisson-spring-boot-starter:3.52.0'
-
-    implementation 'org.springframework.boot:spring-boot-starter-cache'
 }
 
 tasks.named('test') {
