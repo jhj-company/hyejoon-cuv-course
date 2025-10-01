@@ -17,9 +17,14 @@ public class LectureViewService {
     private final LectureJpaRepository lectureJpaRepository;
 
     @Transactional(readOnly = true)
-    public Page<LectureViewResponse> findAll(Pageable pageable) {
+    public Page<LectureViewResponse> findAll(Pageable pageable, String search) {
+        Page<Lecture> lectures;
 
-        Page<Lecture> lectures = lectureJpaRepository.findAll(pageable);
+        if (search == null) {
+            lectures = lectureJpaRepository.findAll(pageable);
+        } else {
+            lectures = lectureJpaRepository.searchByTitle(pageable, search);
+        }
 
         return lectures.map(lecture -> new LectureViewResponse(
             lecture.getId(),

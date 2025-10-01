@@ -1,6 +1,7 @@
 package org.hyejoon.cuvcourse.domain.lecture.view.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,7 +37,7 @@ public class LectureViewControllerTest {
         Page<LectureViewResponse> pageResponse =
             new PageImpl<>(List.of(lecture1, lecture2));
 
-        given(lectureViewService.findAll(any(Pageable.class)))
+        given(lectureViewService.findAll(any(Pageable.class), eq(null)))
             .willReturn(pageResponse);
 
         // when & then
