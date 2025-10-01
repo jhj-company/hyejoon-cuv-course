@@ -1,5 +1,6 @@
 package org.hyejoon.cuvcourse.domain.course.courseregist.service;
 
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
@@ -42,6 +43,7 @@ public class CourseCacheService {
     public long incrementHeadcount(Long lectureId) {
         String key = getCacheKey(lectureId);
         Long newTotal = redisTemplate.opsForValue().increment(key);
+        redisTemplate.expire(key, Duration.ofMinutes(30));
         log.info("incrementHeadcount: lectureId={} -> total={}", lectureId, newTotal);
         return newTotal;
     }
