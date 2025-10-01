@@ -33,6 +33,7 @@ public class CourseCacheService {
         // 캐시 없으면 DB에서 조회
         long total = courseJpaRepository.countByIdLecture(lecture);
         redisTemplate.opsForValue().set(key, total);
+        redisTemplate.expire(key, Duration.ofMinutes(30));
         log.info("getCurrentHeadcount from DB: {}", total);
         return total;
     }
@@ -43,7 +44,6 @@ public class CourseCacheService {
     public long incrementHeadcount(Long lectureId) {
         String key = getCacheKey(lectureId);
         Long newTotal = redisTemplate.opsForValue().increment(key);
-        redisTemplate.expire(key, Duration.ofMinutes(30));
         log.info("incrementHeadcount: lectureId={} -> total={}", lectureId, newTotal);
         return newTotal;
     }
