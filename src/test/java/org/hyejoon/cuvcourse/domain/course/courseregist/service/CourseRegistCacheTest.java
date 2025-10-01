@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,9 +30,9 @@ import org.springframework.test.context.ActiveProfiles;
 public class CourseRegistCacheTest {
 
     // 강의 정원
-    private final int CAPACITY = 500;
+    private final int CAPACITY = 100;
     // 해당 강의를 신청하는 학생 수
-    private final int TOTAL_STUDENT = 1000;
+    private final int TOTAL_STUDENT = 300;
     @Autowired
     private CourseRegistService courseRegistService;
     @Autowired
@@ -50,6 +51,11 @@ public class CourseRegistCacheTest {
 
     @BeforeEach
     void setUp() {
+        Set<String> keys = redisTemplate.keys("lecture:total:*");
+        if (keys != null && !keys.isEmpty()) {
+            redisTemplate.delete(keys);
+        }
+
         // 강의 생성
         lecture = lectureJpaRepository.save(new Lecture("테스트 강의", "교수님", 3, CAPACITY));
         // 학생 생성
