@@ -12,6 +12,7 @@ import org.hyejoon.cuvcourse.domain.course.entity.Course;
 import org.hyejoon.cuvcourse.domain.course.entity.CourseId;
 import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
+import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ public class CourseRegistTxService {
     private final CourseJpaRepository courseJpaRepository;
     private final CourseCapacityCache courseCapacityCache;
     private final CourseCapacityTransactionalFacade courseCapacityTransactionalFacade;
+    private final LectureJpaRepository lectureJpaRepository;
 
     @Transactional
     public Course createCourseWithoutCache(Lecture lecture, CourseId courseId) {
@@ -80,6 +82,11 @@ public class CourseRegistTxService {
             () -> releaseOnRollback(lectureId)
         );
 
+        // 트랜잭션 범위 내에서 강의를 조회해 강의의 신청 인원을 증가
+        Lecture managedLecture = lectureJpaRepository.findById(lectureId)
+            .orElseThrow(() -> new BusinessException(CourseRegistExceptionEnum.LECTURE_NOT_FOUND));
+        managedLecture.increaseTotal();
+
         Course course = Course.from(courseId);
         return courseJpaRepository.save(course);
     }
@@ -109,10 +116,16 @@ public class CourseRegistTxService {
             cause
         );
 
-        long currentCount = courseJpaRepository.countByIdLecture(lecture);
-        if (currentCount >= lecture.getCapacity()) {
+        // 트랜잭션 범위 내에서 강의를 조회해 강의의 신청 인원을 증가
+        Lecture managedLecture = lectureJpaRepository.findById(lectureId)
+            .orElseThrow(() -> new BusinessException(CourseRegistExceptionEnum.LECTURE_NOT_FOUND));
+
+        long currentCount = courseJpaRepository.countByIdLecture(managedLecture);
+        if (currentCount >= managedLecture.getCapacity()) {
             throw new BusinessException(CourseRegistExceptionEnum.CAPACITY_FULL);
         }
+
+        managedLecture.increaseTotal();
 
         Course course = Course.from(courseId);
         return courseJpaRepository.save(course);

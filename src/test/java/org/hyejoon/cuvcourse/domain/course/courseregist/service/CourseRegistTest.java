@@ -11,15 +11,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
 import org.hyejoon.cuvcourse.domain.course.cache.CourseCapacityCache;
 import org.hyejoon.cuvcourse.domain.course.cache.CourseCapacityCache.CourseCapacitySnapshot;
+import org.hyejoon.cuvcourse.domain.course.courseregist.exception.CourseRegistExceptionEnum;
+import org.hyejoon.cuvcourse.domain.course.cousecancel.service.CourseCancelService;
+import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
 import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
-import org.hyejoon.cuvcourse.domain.course.cousecancel.service.CourseCancelService;
-import org.hyejoon.cuvcourse.domain.course.courseregist.exception.CourseRegistExceptionEnum;
+import org.hyejoon.cuvcourse.global.exception.BusinessException;
+import org.hyejoon.cuvcourse.testinfra.RedisTestContainers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,8 +31,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.hyejoon.cuvcourse.global.exception.BusinessException;
-import org.hyejoon.cuvcourse.testinfra.RedisTestContainers;
 
 @SpringBootTest
 @Import(TestCourseRegistConfig.class)

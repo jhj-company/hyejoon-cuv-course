@@ -43,5 +43,20 @@ public class Lecture extends BaseTimeEntity {
         this.professorName = professorName;
         this.credits = credits;
         this.capacity = capacity;
+        this.total = 0;
+    }
+
+    public void increaseTotal() {
+        if (this.total >= this.capacity) {
+            throw new IllegalStateException("강의 정원이 가득 찼습니다.");
+        }
+        this.total += 1;
+    }
+
+    public void decreaseTotal() {
+        if (this.total <= 0) {
+            throw new IllegalStateException("수강 신청 인원이 음수가 될 수 없습니다.");
+        }
+        this.total -= 1;
     }
 }

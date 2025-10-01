@@ -8,6 +8,8 @@ import org.hyejoon.cuvcourse.domain.course.cache.CourseCapacityTransactionalFaca
 import org.hyejoon.cuvcourse.domain.course.cousecancel.exception.CourseCancelExceptionEnum;
 import org.hyejoon.cuvcourse.domain.course.entity.Course;
 import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
+import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
+import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.global.exception.BusinessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +22,13 @@ public class CourseCancelTxService {
     private final CourseJpaRepository courseJpaRepository;
     private final CourseCapacityCache courseCapacityCache;
     private final CourseCapacityTransactionalFacade courseCapacityTransactionalFacade;
+    private final LectureJpaRepository lectureJpaRepository;
 
     @Transactional
     void cancelWithTransaction(Long lectureId, Long studentId) {
         Course course = courseJpaRepository.findByLectureAndStudent(lectureId, studentId)
+            .orElseThrow(() -> new BusinessException(CourseCancelExceptionEnum.COURSE_NOT_FOUND));
+        Lecture lecture = lectureJpaRepository.findById(lectureId)
             .orElseThrow(() -> new BusinessException(CourseCancelExceptionEnum.COURSE_NOT_FOUND));
 
         try {
@@ -37,6 +42,7 @@ public class CourseCancelTxService {
             );
         }
 
+        lecture.decreaseTotal();
         courseJpaRepository.delete(course);
 
         courseCapacityTransactionalFacade.executeAfterCommit(
