@@ -60,7 +60,39 @@ services:
     volumes:
       - redis_lock_data:/data # Redis 공식 기본 데이터 디렉토리
 
+  mysqld_exporter:
+    image: quay.io/prometheus/mysqld-exporter
+    container_name: mysqld_exporter
+    command:
+      - "--mysqld.username=root:1234"
+      - "--mysqld.address=hjcuv-mysql:3306"
+    ports:
+      - "9104:9104"
+    depends_on:
+      - mysql-dev
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - mysqld_exporter
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+
 volumes:
   mysql_data:
   redis_lock_data:
   mysql_dev_data:
+  grafana_data:
