@@ -72,9 +72,9 @@
 | --- | --- | --- | --- | --- | --- |
 | **로그인** | `POST` | `/api/students/login` | - | `email`, `password` | `studentId` |
 | **강의 목록 조회** | `GET` | `/api/lectures` | - | `page`, `size` (Query) | 강의 목록 (페이지네이션) |
-| **수강 신청** | `POST` | `/api/courses` | `X-STUDENT-ID` | `lectureId` | `courseId`, `lectureId` |
-| **수강 취소** | `DELETE` | `/api/courses` | `X-STUDENT-ID` | `lectureId` | - |
-| **수강 내역 조회** | `GET` | `/api/courses` | `X-STUDENT-ID` | - | 신청한 강의 목록 |
+| **수강 신청** | `POST` | `/api/courses` | `X-STUDENT-ID`(학생 기본키) | `lectureId` | `courseId`, `lectureId` |
+| **수강 취소** | `DELETE` | `/api/courses` | `X-STUDENT-ID`(학생 기본키) | `lectureId` | - |
+| **수강 내역 조회** | `GET` | `/api/courses` | `X-STUDENT-ID`(학생 기본키) | - | 신청한 강의 목록 |
 
 <br>
 
