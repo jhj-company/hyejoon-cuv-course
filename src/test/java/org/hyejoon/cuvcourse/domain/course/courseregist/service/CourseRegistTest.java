@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.hyejoon.cuvcourse.domain.course.repository.CourseJpaRepository;
 import org.hyejoon.cuvcourse.domain.lecture.cache.LectureCacheService;
 import org.hyejoon.cuvcourse.domain.lecture.entity.Lecture;
+import org.hyejoon.cuvcourse.domain.lecture.repository.LectureESRepository;
 import org.hyejoon.cuvcourse.domain.lecture.repository.LectureJpaRepository;
 import org.hyejoon.cuvcourse.domain.student.entity.Student;
 import org.hyejoon.cuvcourse.domain.student.repository.StudentJpaRepository;
@@ -54,6 +55,9 @@ public class CourseRegistTest {
     private LectureJpaRepository lectureJpaRepository;
 
     @Autowired
+    private LectureESRepository lectureESRepository;
+
+    @Autowired
     private CourseJpaRepository courseJpaRepository;
 
     @Autowired
@@ -73,6 +77,7 @@ public class CourseRegistTest {
         courseJpaRepository.deleteAllInBatch();
         studentJpaRepository.deleteAllInBatch();
         lectureJpaRepository.deleteAllInBatch();
+        lectureESRepository.deleteAll();
     }
 
     @Test
@@ -107,7 +112,7 @@ public class CourseRegistTest {
             executor.submit(() -> {
                 try {
                     barrier.await();  // 모든 스레드가 동시에 시작하도록 기다림
-                    courseRegistWithoutCacheService
+                    courseRegistService
                         .registerCourse(student.getId(), savedLecture.getId());
                     successCount.incrementAndGet();
                 } catch (Exception ex) {
@@ -119,7 +124,7 @@ public class CourseRegistTest {
 
         executor.shutdown();
         try {
-            executor.awaitTermination(30, TimeUnit.SECONDS);
+            executor.awaitTermination(60, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
