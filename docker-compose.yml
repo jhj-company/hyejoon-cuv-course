@@ -1,0 +1,66 @@
+# ===============================
+# 🚀 Docker Compose 실행/관리 명령어
+# -------------------------------
+# 전체 서비스 실행 (백그라운드)
+#   docker compose up -d
+#
+# 전체 서비스 중지 + 네트워크 제거 (데이터 유지)
+#   docker compose down
+#
+# 전체 서비스 중지 + 볼륨/데이터까지 삭제 (주의!)
+#   docker compose down -v
+#
+# 특정 서비스만 재시작 (예: mysql)
+#   docker compose restart mysql
+#
+# 로그 확인 (예: app container name: hjcuv-redis)
+#   docker logs -f hjcuv-redis
+#
+# 도커 내부 bash 접속
+#   docker exec -it <container_name> bash
+#
+# Redis ping 확인
+#   docker exec -it hjcuv-redis redis-cli ping
+# ===============================
+
+version: "3.8"
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: hjcuv-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: hjcuv
+      MYSQL_USER: hjcuv
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql # MySQL 공식 기본 데이터 디렉토리
+
+  mysql-dev:
+    image: mysql:8.0
+    container_name: hjcuv-mysql-dev
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: hjcuv-dev
+      MYSQL_USER: hjcuv
+      MYSQL_PASSWORD: 1234
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_dev_data:/var/lib/mysql-dev # MySQL 공식 기본 데이터 디렉토리
+
+  redis-lock:
+    image: redis:7.4
+    container_name: hjcuv-redis
+    command: [ "redis-server", "--appendonly", "yes", "--appendfsync", "everysec", "--maxmemory-policy", "noeviction" ]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_lock_data:/data # Redis 공식 기본 데이터 디렉토리
+
+volumes:
+  mysql_data:
+  redis_lock_data:
+  mysql_dev_data:
